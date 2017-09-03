@@ -7,19 +7,20 @@ if not modules then modules = { } end modules ['t-drops'] = {
     license   = "GNU General Public License"
 }
 
-local version_string = "version: 2014.12.06" -- for batch file
+local version_string = "version: 2016.01.18" -- for batch file
 
 local lpeg = require("lpeg")
 local lpegmatch = lpeg.match
 local texdimen = tex.dimen
 local tonumber = tonumber
+local metafun = context.metafun
+local showmessage = interfaces.showmessage
+local unpack = table.unpack or unpack
 local insert, fastcopy = table.insert, table.fastcopy
 local format, todimen, lower, upper = string.format, string.todimen, string.lower, string.upper
 local abs, floor, max, min, pow, sqrt = math.abs, math.floor, math.max, math.min, math.pow, math.sqrt
 local rad, cos, sin = math.rad, math.cos, math.sin
-local showmessage = interfaces.showmessage
 
-local metafun = context.metafun
 
 local trace_drops = false  trackers.register("modules.drops", function(v) trace_drops = v end)
 -- tracker for path calculation (talkative!)
@@ -92,8 +93,8 @@ local function round(num, idp)
 end
 
 function drops.numberofpixels(n,idp)
-    local dimenfactor = 1/tex.pdfpxdimen
-    return round(todimen(n)*dimenfactor,idp)
+    local pxdimen = tex.pdfpxdimen or tex.pxdimen
+    return round(todimen(n)/pxdimen,idp)
 end
 
 local numberofpixels = drops.numberofpixels
@@ -165,7 +166,7 @@ function drops.spec()
         id        = c.shadow_id, name     = c.shadow_name,
         umbra     = c.umbra    , usigma   = c.usigma,   udistance = c.udistance,
         penumbra  = c.penumbra , psigma   = c.psigma,   pdistance = c.pdistance,
-        offset    = c.offset   , xoffset  = c.xoffset , yoffset  = c.yoffset,
+        offset    = c.offset   , xoffset  = c.xoffset , yoffset   = c.yoffset,
         direction = c.direction, rotation = c.rotation,
         resolution = c.resolution,
         shadowcolor = c.shadowcolor,
@@ -177,61 +178,62 @@ end
 
 function drops.showdropstable()
     local c = drops.spec()
-    local px = tex.pdfpxdimen
+    local px = tex.pdfpxdimen or tex.pxdimen
+    local NC,VL,HL,AR = context.NC,context.VL,context.HL,context.AR
     context("\\vbox\\bgroup\\switchtobodyfont[6pt,ss]\\vbox\\bgroup")
     context.starttable({"|r|r|r|r|"})
 
-    context.NC()
+    NC()
     context(format("\\hbox\\bgroup\\switchtobodyfont[4pt]graphic (%d)\\egroup",c.resolution))
-    context.VL()
-    context("opacity")context.NC()
-    context("sigma")context.NC()
+    VL()
+    context("opacity")NC()
+    context("sigma")NC()
     context("distance (px)")
-    context.AR()context.HL()
+    AR()HL()
 
-    context.NC()
-    context("umbra")context.VL()
-    context(c.umbra .. "\\letterpercent")context.NC()
-    context(c.usigma .. "px")context.NC()
+    NC()
+    context("umbra")VL()
+    context(c.umbra .. "\\letterpercent")NC()
+    context(c.usigma .. "px")NC()
     context(format("%s",c.udistance))
-    context.AR()
+    AR()
 
-    context.NC()
-    context("penumbra")context.VL()
-    context(c.penumbra .. "\\letterpercent")context.NC()
-    context(c.psigma .. "px")context.NC()
+    NC()
+    context("penumbra")VL()
+    context(c.penumbra .. "\\letterpercent")NC()
+    context(c.psigma .. "px")NC()
     context(format("%s",c.pdistance))
-    context.AR()
+    AR()
 
-    context.NC()context.VL()context.use(3)context.AR()
+    NC()VL()context.use(3)AR()
 
-    context.NC()
-    context("\\hbox\\bgroup\\switchtobodyfont[4pt]location rel.\\egroup")context.VL()
-    context("direction")context.NC()
-    context("offset")context.NC()
+    NC()
+    context("\\hbox\\bgroup\\switchtobodyfont[4pt]location rel.\\egroup")VL()
+    context("direction")NC()
+    context("offset")NC()
     context("xy-offset (px)")
-    context.AR()context.HL()
+    AR()HL()
 
-    context.NC()
+    NC()
     context("value")
-    context.VL()
-    context(format("%d°",c.direction))context.NC()
-    context(format("%.1fpx",numberofpixels(c.offset,1)))context.NC()
+    VL()
+    context(format("%d°",c.direction))NC()
+    context(format("%.1fpx",numberofpixels(c.offset,1)))NC()
     context(format("%+.1f%+.1f",c.xoffset/px,c.yoffset/px))
-    context.AR()
+    AR()
 
-    context.NC()context.use(4)context.AR()
+    NC()context.use(4)AR()
 
-    context.NC()
-    context("\\hbox\\bgroup\\switchtobodyfont[4pt]color\\egroup")context.NC()
+    NC()
+    context("\\hbox\\bgroup\\switchtobodyfont[4pt]color\\egroup")NC()
     context.use(3)context(format("cs:%s, %s",c.colorspace,c.shadowcolor))
-    context.AR()
+    AR()
 
-    context.NC()
-    context("\\hbox\\bgroup\\switchtobodyfont[4pt]file\\egroup")context.NC()
+    NC()
+    context("\\hbox\\bgroup\\switchtobodyfont[4pt]file\\egroup")NC()
     context.use(3)
     context(drops.currentshadowname())
-    context.AR()
+    AR()
 
     context.stoptable()
     context("\\egroup\\egroup")
@@ -442,9 +444,6 @@ local ACCURACY_FX = ACCURACY_POINT -- accuracy for the function parameters m and
 
 -- TODO: these values base on very few examples; needs a lot more testing for robust values
 
--- needed to properly detect 'identical' functions; the points can be inaccurate (rounded) in the first place
-local GRADIENT_THRESHOLD    = 0.00003 -- ("ampersand2", bad path)
-
 -- threshold to detect collinearity
 local AREA_THRESHOLD = 0.00001
 -- threshold to detect parallelism
@@ -452,8 +451,8 @@ local PARALLELISM_THRESHOLD = 0.00050
 
 -- some helper macros for point locations in the path
 local function point(p,i)  return { p[i][1], p[i][2] } end
-local function cp1(p,i)   return { p[i][3], p[i][4] } end -- pre control point
-local function cp2(p,i)   return { p[i][5], p[i][6] } end -- post
+local function cp1(p,i)    return { p[i][3], p[i][4] } end -- pre control point
+local function cp2(p,i)    return { p[i][5], p[i][6] } end -- post
 
 
 local function calculate_point(A,B,C,D,t)
@@ -480,15 +479,15 @@ end
 
 local function get_local_error(A,B,C,D,E,F,G,H,d,i)
     local interval = i or TIME_INTERVAL
-    local maxerror,error,time = 0
+    local maxerror,locerror,time = 0
     local px,py,qx,qy
 
     for t=0,1,interval do -- TODO: what values are needed for acceptable results? equidistant or a list of fixed values?
         px,py = calculate_point(A,B,C,D,t)
         qx,qy = calculate_point(E,F,G,H,t)
-        error = sqrt(pow(qy-py,2) + pow(qx-px,2)) -abs(d)
+        locerror = sqrt(pow(qy-py,2) + pow(qx-px,2)) -abs(d)
 
-        if abs(error) > maxerror then maxerror = error; time = t end
+        if abs(locerror) > maxerror then maxerror = locerror; time = t end
     end
 
     return maxerror,time
@@ -524,7 +523,7 @@ local function get_single_path_extrema(path)
     local r = { {P1[1]} , {P1[2]} } -- store possible extrema (roots) for x and y; start point is first candidate
     local rx,ry = r[1], r[2] -- separate arrays for the x|y coordinates
 
-    local a,b,c,d,sqrtd,t,next
+    local a,b,c,d,sqrtd,t
     local function f(t,i) -- same formula as in calculate_point(), but only for one coordinate axis
         return (-P1[i]+3*(P2[i]-P3[i])+P4[i])*pow(t,3) + (3*(P1[i]-2*P2[i]+P3[i]))*pow(t,2) + (3*(-P1[i]+P2[i]))*t + P1[i]
     end
@@ -566,7 +565,7 @@ local function get_single_path_extrema(path)
      y_min = min(unpack(ry)) ; y_max = max(unpack(ry))
 
      if trace_drops_path then
-         report_drops("get_single_path_extrema:  x=(%.5f,%.5f), y=(%.8f,%.8f)",x_min,x_max,y_min,y_max)
+         report_drops("get_single_path_extrema:  x=(%.5f,%.5f), y=(%.5f,%.5f)",x_min,x_max,y_min,y_max)
      end
      return x_min,x_max,y_min,y_max
 end
@@ -616,6 +615,7 @@ local function points_are_collinear(A,B,C,D)
         return false
     end
 end
+
 
 
 -- http://pomax.github.io/bezierinfo/#intersections
@@ -1430,14 +1430,16 @@ function drops.shadow(specification)
                                 quoted_shadowcolor,umbra,usigma)
     -- 5.
     -- does not work in 6.6.0-4 (Debian)
+    -- IM 6.9.2-0 needs background color
     local combine_shadows =
-    [[ -channel Alpha -gravity Center -compose Lighten -composite ]]
+        format(" -background %s -channel Alpha -gravity Center -compose Lighten -composite",quoted_shadowcolor)
     -- 6
     local blur_radius,blur_sigma = 0, 2
-    local alpha_size = blur_sigma+1
+    local frame_size = blur_sigma+1
     local optimize_shadow =
-        format("+clone -bordercolor none -border %d -background %s -alpha Background -channel Alpha -blur %dx%.1f",
-               alpha_size,quoted_shadowcolor,blur_radius,blur_sigma)
+--        format("+clone -bordercolor none -border %d -background %s -alpha Background -channel Alpha -blur %dx%.1f", -- IM 6.9.2-0: problem with '-border'
+        format("+clone -bordercolor none -compose Src -frame %dx%d -background %s -alpha Background -channel Alpha -blur %dx%.1f",
+               frame_size,frame_size,quoted_shadowcolor,blur_radius,blur_sigma)
 
     -- IM SHADOW WITH UMBRA + PENUMBRA AREA
     --  1. create penumbra mask as base for shadow

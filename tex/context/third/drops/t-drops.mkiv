@@ -1,6 +1,6 @@
 %D \module
 %D   [     file=t-drops,
-%D      version=2014.12.06,
+%D      version=2016.01.18,
 %D        title=\CONTEXT\ User Module,
 %D     subtitle=drops,
 %D       author=Peter Rolf,
@@ -9,7 +9,7 @@
 %D        email=peter.rolf@arcor.de,
 %D      license=GNU General Public License]
 
-%C Copyright (C) 2012-2014  Peter Rolf
+%C Copyright (C) 2012-2016  Peter Rolf
 %C
 %C This program is free software: you can redistribute it and/or modify
 %C it under the terms of the GNU General Public License as published by
@@ -141,7 +141,7 @@
 \dropshideframes
 
 \doifundefined{??module}{\def\??module{\??md:}} % hack for older versions
-
+\doifundefined{pdfvariable} {\let\pxdimen\pdfpxdimen} % \pxdimen in luatex 0.85
 
 %D Comma value lists
 
@@ -163,7 +163,7 @@
 %D shadow ID; used internally for caching, but maybe useful, as it contains all graphic related parameters
 \def\currentshadowid{\ctxlua{thirddata.drops.currentshadowid()}}
 
-\unexpanded\def\numberofpixels#1{\the\numexpr\dimexpr#1\relax/\pdfpxdimen\relax}
+\unexpanded\def\numberofpixels#1{\the\numexpr\dimexpr#1\relax/\pxdimen\relax}
 
 \def\dropscreatedefaultpath#1#2#3{\ctxlua{context(thirddata.drops.createboxshadowpath(\!!bs#1\!!es,\!!bs#2\!!es,\!!bs#3\!!es))}}
 
@@ -224,7 +224,7 @@
    \doifnothing{\dropsparameter\c!pdistance}{\setvalue{\????drops\c!pdistance}{\dropsdefault\c!pdistance}}%
    \doifnothing{\dropsparameter\c!udistance}{\setvalue{\????drops\c!udistance}{\dropsdefault\c!udistance}}%
 %
-   \pdfpxdimen1in\relax\divide\pdfpxdimen\numexpr\dropsparameter\c!resolution\relax % set actual pixel dimension
+   \pxdimen1in\relax\divide\pxdimen\numexpr\dropsparameter\c!resolution\relax % set actual pixel dimension
    \setbox\Shadowbox\vbox{#3}%
    \expandafter\def\expandafter\@@@@drops!o \expandafter{\the\numexpr\dropsparameter\c!offset\relax}% no need to force (full) pixel here
 % D these parameters must be fully expanded before the lua call; all dimensions in full pixel only
@@ -303,8 +303,7 @@
        \c!background=\dropsparameter\c!background,
        \c!offset=\v!overlay,\c!align={\v!middle,\v!lohi}, % needed for background color
        #2]{#3}%
-   \vbox{\hsize\dimexpr\@@@@drops!w px\relax\vsize\dimexpr\@@@@drops!h px\relax % photons do not count
-       \flushlayer[\@@@@drops!layer]}%
+   \tightlayer[\@@@@drops!layer]%
    \fi % trialtypesetting
   }
 
@@ -314,7 +313,7 @@
 \def\dosetupdrops[#1]%
   {\iffirstargument\getparameters[\????dropssetup][#1,{\c!setup=}]% never parameter 'setup'
     \doifsomething{\csname\????dropssetup\c!resolution\endcsname}% needed for reliable results of standalone numberofpixel() calls
-    {\pdfpxdimen\dimexpr1in/\numexpr\csname\????dropssetup\c!resolution\endcsname\relax\relax}\else
+    {\pxdimen\dimexpr1in/\numexpr\csname\????dropssetup\c!resolution\endcsname\relax\relax}\else
    \ctxlua{thirddata.drops.resetdrops()}\fi} % reset all parameters to their default, when no argument is given
 
 
