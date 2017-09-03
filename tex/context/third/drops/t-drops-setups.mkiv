@@ -1,0 +1,164 @@
+%D \module
+%D   [     file=t-drops,
+%D      version=2014.12.06
+%D        title=\CONTEXT\ User Module,
+%D     subtitle=drops presets,
+%D       author=Peter Rolf,
+%D         date=\currentdate,
+%D    copyright=Peter Rolf,
+%D        email=peter.rolf@arcor.de,
+%D      license=GNU General Public License]
+
+%C Copyright (C) 2012-2014  Peter Rolf
+%C
+%C This program is free software: you can redistribute it and/or modify
+%C it under the terms of the GNU General Public License as published by
+%C the Free Software Foundation, either version 3 of the License, or
+%C (at your option) any later version.
+%C
+%C This program is distributed in the hope that it will be useful,
+%C but WITHOUT ANY WARRANTY; without even the implied warranty of
+%C MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%C GNU General Public License for more details.
+%C
+%C You should have received a copy of the GNU General Public License
+%C along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+
+% G E N E R A L - - - - - - - -
+%
+% positioning only, no influence on graphic
+\startsetups drops:c
+    \LocalStyle{offset=\zeropoint}%
+\stopsetups
+\startsetups drops:r
+    \LocalStyle{direction=0}%
+\stopsetups
+\startsetups drops:tr
+    \LocalStyle{direction=45}%
+\stopsetups
+\startsetups drops:rt
+    \setups[drops:tr]%
+\stopsetups
+\startsetups drops:t
+    \LocalStyle{direction=90}%
+\stopsetups
+\startsetups drops:tl
+    \LocalStyle{direction=135}%
+\stopsetups
+\startsetups drops:lt
+    \setups[drops:tl]%
+\stopsetups
+\startsetups drops:l
+    \LocalStyle{direction=180}%
+\stopsetups
+\startsetups drops:bl
+    \LocalStyle{direction=225}%
+\stopsetups
+\startsetups drops:lb
+    \setups[drops:bl]%
+\stopsetups
+\startsetups drops:b
+    \LocalStyle{direction=270}%
+\stopsetups
+\startsetups drops:br
+    \LocalStyle{direction=315}%
+\stopsetups
+\startsetups drops:rb
+    \setups[drops:br]%
+\stopsetups
+
+
+
+% S P E C I A L - - - - - - - -
+%
+%
+% S O F T
+%
+% gives smooth shadows (higher sigma values); good for bigger shadow offsets
+% based on a black shadow, white background (paper) and white frame (\photoframed).
+% the white frame is needed to get reliable contrasts; it totally depends on the graphic otherwise
+\startsetups drops:soft:light
+    \LocalStyle{umbra=35,penumbra=30,usigma=0.68mm,psigma=1.35mm}%
+\stopsetups
+
+\startsetups drops:soft:medium
+    \LocalStyle{umbra=50,penumbra=40,usigma=0.85mm,psigma=1.52mm}%
+\stopsetups
+
+\startsetups drops:soft:dark
+    \LocalStyle{umbra=65,penumbra=50,usigma=1.02mm,psigma=1.86mm}%
+\stopsetups
+
+
+% H A R D
+%
+% small 'usigma' value results in a harder contrast between umbra and penumbra area
+%
+\startsetups drops:hard:light
+    \LocalStyle{umbra=35,penumbra=30,usigma=0.17mm,psigma=1.35mm}%
+\stopsetups
+
+\startsetups drops:hard:medium
+    \LocalStyle{umbra=50,penumbra=40,usigma=0.34mm,psigma=1.69mm}%
+\stopsetups
+
+\startsetups drops:hard:dark
+    \LocalStyle{umbra=65,penumbra=50,usigma=0.51mm,psigma=1.86mm}%
+\stopsetups
+
+
+% F L A T
+%
+% Allows you to produce shadows with minimal 'distance' to the background (paper).
+% None or very small umbra sigma for a hard contrast and small umbra shadow.
+% Umbra shadow is smaller than object (negative udistance).
+%
+% #suggested settings
+% one sided (here 270°): direction=-90, offset=0.87mm, udistance=-0.34mm, pdistance=0mm
+% two sided (here -45°) : direction=-45, offset=0.95mm, udistance=-0.34mm, pdistance=0mm
+%
+% For a more realistic look we probably need a higher resolution (thinner shadow lines possible) than 150ppi.
+% Also better use 'azure:V20' instead of black as shadowcolor.
+
+\startsetups drops:flat:light
+    \LocalStyle{umbra=35,penumbra=30,usigma=0mm,psigma=1.19mm}%
+\stopsetups
+
+\startsetups drops:flat:medium
+    \LocalStyle{umbra=50,penumbra=35,usigma=0mm,psigma=1.35mm}%
+\stopsetups
+
+\startsetups drops:flat:dark
+    \LocalStyle{umbra=65,penumbra=40,usigma=0mm,psigma=1.52mm}%
+\stopsetups
+
+
+
+% F R A M E S - - - - - - - -
+% offset is always sero; direction has no function and is also reset to zero
+
+
+% G L O O M
+%
+% for darker backgrounds
+\startsetups drops:gloom
+    \LocalStyle{umbra=80,penumbra=70,usigma=0.34mm,psigma=2.03mm,
+      udistance=0.7mm,pdistance=1.2mm,
+      direction=0,offset=0mm}%
+\stopsetups
+
+% H A L O
+%
+% for very dark backgrounds
+\startsetups drops:halo
+    \LocalStyle{umbra=100,penumbra=80,usigma=0.34mm,psigma=2.03mm,
+      udistance=0.7mm,pdistance=1.2mm,
+      direction=0,offset=0mm}%
+\stopsetups
+
+
+
+
+\stopmodule

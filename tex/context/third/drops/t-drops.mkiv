@@ -1,0 +1,335 @@
+%D \module
+%D   [     file=t-drops,
+%D      version=2014.12.06,
+%D        title=\CONTEXT\ User Module,
+%D     subtitle=drops,
+%D       author=Peter Rolf,
+%D         date=\currentdate,
+%D    copyright=Peter Rolf,
+%D        email=peter.rolf@arcor.de,
+%D      license=GNU General Public License]
+
+%C Copyright (C) 2012-2014  Peter Rolf
+%C
+%C This program is free software: you can redistribute it and/or modify
+%C it under the terms of the GNU General Public License as published by
+%C the Free Software Foundation, either version 3 of the License, or
+%C (at your option) any later version.
+%C
+%C This program is distributed in the hope that it will be useful,
+%C but WITHOUT ANY WARRANTY; without even the implied warranty of
+%C MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%C GNU General Public License for more details.
+%C
+%C You should have received a copy of the GNU General Public License
+%C along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+\writestatus{loading}{ConTeXt User Module / Drops}
+
+
+\unprotect
+
+\startmodule[drops]
+
+%D Constants and variables
+
+\startinterface all
+  \setinterfaceconstant {background}              {background}
+  \setinterfaceconstant {backgroundcolor}         {backgroundcolor}
+  \setinterfaceconstant {colorspace}              {colorspace}
+  \setinterfaceconstant {direction}               {direction}
+  \setinterfaceconstant {file}                    {file}
+  \setinterfaceconstant {fileformat}              {fileformat}
+  \setinterfaceconstant {mppath}                  {mppath}
+  \setinterfaceconstant {offset}                  {offset}
+  \setinterfaceconstant {pdistance}               {pdistance}
+  \setinterfaceconstant {penumbra}                {penumbra}
+  \setinterfaceconstant {psigma}                  {psigma}
+  \setinterfaceconstant {radius}                  {radius}
+  \setinterfaceconstant {resolution}              {resolution}
+  \setinterfaceconstant {rotation}                {rotation}
+  \setinterfaceconstant {setup}                   {setup}
+  \setinterfaceconstant {shadowbackgroundcolor}   {shadowbackgroundcolor}
+  \setinterfaceconstant {shadowcolor}             {shadowcolor}
+  \setinterfaceconstant {udistance}               {udistance}
+  \setinterfaceconstant {umbra}                   {umbra}
+  \setinterfaceconstant {usigma}                  {usigma}
+\stopinterface
+
+\startinterface all
+  \setinterfacevariable {drops}                   {drops}
+\stopinterface
+
+%D Messages
+
+\definemessageconstant {drops}
+
+\startinterface all
+  \setinterfacemessage\m!drops {badcolor}        {warning: no color values for '--'; setting to default value}
+  \setinterfacemessage\m!drops {createdir}       {directory '--' was successfully created}
+  \setinterfacemessage\m!drops {direrror}        {error: directory '--': '--'}
+  \setinterfacemessage\m!drops {ioopenerror}     {error: couldn't write to file '--': '--'}
+  \setinterfacemessage\m!drops {noclosedpath}    {warning: the metapost path named '--' is not properly closed}
+  \setinterfacemessage\m!drops {nomppath}        {warning: can't find a metapost path named '--'}
+  \setinterfacemessage\m!drops {nosetup}         {warning: a setup named '--' is not defined}
+  \setinterfacemessage\m!drops {noshadowpath}    {warning: found no shadow mask paths; using fallback mechanism}
+  \setinterfacemessage\m!drops {noversioninfo}   {error: couldn't get version info about ImageMagick; disabling module!}
+  \setinterfacemessage\m!drops {pngandcmyk}      {warning: PNG does not support CMYK; using JPG instead}
+  \setinterfacemessage\m!drops {startbatch}      {starting batch file '--'..}
+  \setinterfacemessage\m!drops {wrongcanvas}     {warning: the umbra canvas is bigger than the penumbra canvas; setting to default values}
+  \setinterfacemessage\m!drops {wrongcolorspace} {warning: not supported color space '--'; must be Gray|RGB|CMYK}
+  \setinterfacemessage\m!drops {wrongfileformat} {warning: not supported file format '--'; must be PNG or JPG}
+  \setinterfacemessage\m!drops {wrongpenumbra}   {warning: invalid penumbra value '--'; setting to default value}
+  \setinterfacemessage\m!drops {wrongumbra}      {warning: invalid umbra value '--'; setting to default value}
+\stopinterface
+
+
+%D Namespaces
+
+\def\????drops{@@@@drops}
+\def\????dropssetup{@@@@dropssetup}
+
+%D layer name
+\def\@@@@drops!layer{@drops}
+\definelayer[\@@@@drops!layer]
+
+%D Boolean
+
+\newif\if!!dropsdo
+\newif\if!!dropson
+
+%D Tracing & Control
+%D
+%D add '--trackers=modules.drops' to your command line, to get additional info
+
+% D create new shadows if neeeded
+\let\dropsdo\!!dropsdotrue
+% D no creation, only inclusion of existing shadow graphics
+\let\dropsdone\!!dropsdofalse
+
+\dropsdo
+
+% D normal usage
+\let\dropson\!!dropsontrue
+% D no shadow inclusion, no shadow creation
+\let\dropsoff\!!dropsonfalse
+
+\dropson
+% \dropsoff is needed as panic switch in case of a not existing/working IM installation
+
+%D Lua code
+\ctxloadluafile{t-drops}{}
+
+%D Module setup
+
+%D The default parameter values are stored on the Lua side.
+%\setupdrops % call at end of module (macro is still undefined)
+
+% Misc
+\unexpanded\def\dropsshowtable{\ctxlua{thirddata.drops.showdropstable()}}% show main parameters in a small table
+
+\newbox\Shadowbox
+\newbox\Pathbox
+
+% colors used for visual debugging
+\definecolor[dbg:shadowframe] [r=.933333,g=.388235,b=.388235] % red2
+\definecolor[dbg:objectframe] [g=.803922] % green3
+%D shows frame for box and box shadow boundaries
+\def\dropsshowframes{\def\DBG@frame{\v!on}}
+\def\dropshideframes{\def\DBG@frame{\v!off}}
+
+\dropshideframes
+
+\doifundefined{??module}{\def\??module{\??md:}} % hack for older versions
+
+
+%D Comma value lists
+
+\def\@@@@drops!commands{\c!background,\c!backgroundcolor,\c!colorspace,\c!direction,\c!file,\c!fileformat,\c!mppath,\c!offset,\c!pdistance,\c!penumbra,\c!psigma,\c!radius,\c!resolution,\c!rotation,\c!setup,\c!shadowbackgroundcolor,\c!shadowcolor,\c!udistance,\c!umbra,\c!usigma} % not \c!setup
+
+%D \macros
+%D   {}
+%D
+%D Internal helper macros
+
+\def\dropsparameter#1{\csname\????drops #1\endcsname}
+%D get default parameter values from one (lua based) source
+\def\dropsdefault#1{\ctxlua{context(thirddata.drops.getdefault("#1"))}}
+%D get current parameter values
+\def\dropscurrent#1{\ctxlua{context(thirddata.drops.getcurrent("#1"))}}
+
+%D relative path / file name
+\def\currentshadowname{\ctxlua{thirddata.drops.currentshadowname()}}
+%D shadow ID; used internally for caching, but maybe useful, as it contains all graphic related parameters
+\def\currentshadowid{\ctxlua{thirddata.drops.currentshadowid()}}
+
+\unexpanded\def\numberofpixels#1{\the\numexpr\dimexpr#1\relax/\pdfpxdimen\relax}
+
+\def\dropscreatedefaultpath#1#2#3{\ctxlua{context(thirddata.drops.createboxshadowpath(\!!bs#1\!!es,\!!bs#2\!!es,\!!bs#3\!!es))}}
+
+
+\let\dropsXPos\relax \newdimen\dropsXPos
+\let\dropsYPos\relax \newdimen\dropsYPos
+\let\dropsRadius\relax \newdimen\dropsRadius
+\let\dropsWidth\relax \newdimen\dropsWidth
+\let\dropsHeight\relax \newdimen\dropsHeight
+
+% D direction, offset, rotation
+\unexpanded\def\dropscalculateoffsets#1#2#3#4#5{\ctxlua{%
+  thirddata.drops.locateshadow("#1","#2","#3","#4","#5")}}% result in drops[X|Y]Pos register
+
+%D set local style
+%D
+%D the setup(s) define(s) a list of parameter=value pairs, which are then set
+%D as local variables for the ns prefix; a combination of styles is possible
+\unexpanded\def\SetLocalStyle#1#2{% ns prefix, style (can be commalist)
+%  \writestatus{drops}{SetLocalStyle: #1: style={#2}}%
+  \def\docommand##1{%
+    \doifsetupselse{##1}
+      {\setups[##1]%
+       \normalexpanded{\getparameters[#1][\STY@pl]}}%
+      {\showmessage{drops}{nosetup}{##1}}}%
+    \processcommacommand[#2]\docommand} % must be *command for multiple setups!
+
+%D the local style parameter list
+\let\STY@pl\empty
+%D define local style by defining the style parameter list
+\def\LocalStyle#1{\def\STY@pl{#1}}
+
+
+
+
+\unexpanded\def\drops
+  {\dodoubleempty\dodrops}
+
+\def\dodrops[#1][#2]#3% [drops] [framed] {content}
+  {\expanded{\copyparameters[\????drops][\????dropssetup][\@@@@drops!commands]}% use setup parameter as default
+   \iffirstargument % drops parameters
+       \getparameters[\????drops][#1]\fi
+   \ifsecondargument % framed parameters (mainly w+h, frame and background)
+       \getparameters[@@@@drops!][{\c!align={\vmiddle,\v!lohi},\c!offset=\v!overlay},#2]\fi
+   \iftrialtypesetting\framed[\c!offset=\v!overlay,\c!strut=\v!no,\c!frame=\v!off,#2]{#3}% framed parameters may influence final size
+   \else
+   \doifsomething{\dropsparameter\c!setup}
+     {\SetLocalStyle{\????drops}{\dropsparameter\c!setup}}% set all local variables, that are defined by the style
+%  TeX related parameters check (currently only emtpy parameter are captured)
+% TODO: use lua for a better check
+   \doifnothing{\dropsparameter\c!direction}{\setvalue{\????drops\c!direction}{\dropsdefault\c!direction}}%
+   \doifnothing{\dropsparameter\c!rotation}{\setvalue{\????drops\c!rotation}{\dropsdefault\c!rotation}}%
+   \doifnothing{\dropsparameter\c!offset}{\setvalue{\????drops\c!offset}{\dropsdefault\c!offset}}%
+   \doifnothing{\dropsparameter\c!radius}{\setvalue{\????drops\c!radius}{\dropsdefault\c!radius}}%
+   \doifnothing{\dropsparameter\c!psigma}{\setvalue{\????drops\c!psigma}{\dropsdefault\c!psigma}}%
+   \doifnothing{\dropsparameter\c!usigma}{\setvalue{\????drops\c!usigma}{\dropsdefault\c!usigma}}%
+   \doifnothing{\dropsparameter\c!resolution}{\setvalue{\????drops\c!resolution}{\dropsdefault\c!resolution}}%
+   \doifnothing{\dropsparameter\c!pdistance}{\setvalue{\????drops\c!pdistance}{\dropsdefault\c!pdistance}}%
+   \doifnothing{\dropsparameter\c!udistance}{\setvalue{\????drops\c!udistance}{\dropsdefault\c!udistance}}%
+%
+   \pdfpxdimen1in\relax\divide\pdfpxdimen\numexpr\dropsparameter\c!resolution\relax % set actual pixel dimension
+   \setbox\Shadowbox\vbox{#3}%
+   \expandafter\def\expandafter\@@@@drops!o \expandafter{\the\numexpr\dropsparameter\c!offset\relax}% no need to force (full) pixel here
+% D these parameters must be fully expanded before the lua call; all dimensions in full pixel only
+   \doifdefinedelse{@@@@drops!width}
+     {\dropsWidth\dimexpr\@@@@drops!width\relax
+       \expandafter\def\expandafter\@@@@drops!w \expandafter{\numberofpixels{\dimexpr\@@@@drops!width\relax}}}% width given by \framed
+     {\dropsWidth\wd\Shadowbox\relax
+      \expandafter\def\expandafter\@@@@drops!w \expandafter{\numberofpixels{\wd\Shadowbox}}}%
+   \doifdefinedelse{@@@@drops!height}
+     {\dropsHeight\dimexpr\@@@@drops!height\relax
+       \expandafter\def\expandafter\@@@@drops!h \expandafter{\numberofpixels{\dimexpr\@@@@drops!height\relax}}}% height given by \framed
+     {\dropsHeight\dimexpr\ht\Shadowbox+\dp\Shadowbox\relax
+      \expandafter\def\expandafter\@@@@drops!h \expandafter{\numberofpixels{\dimexpr\ht\Shadowbox+\dp\Shadowbox\relax}}}%
+   \doifdefinedelse{@@@@drops!backgroundradius}
+     {\dropsRadius\dimexpr\@@@@drops!backgroundradius\relax
+      \expandafter\def\expandafter\@@@@drops!r \expandafter{\numberofpixels{\dimexpr\@@@@drops!backgroundradius\relax}}}%
+     {\dropsRadius\dimexpr\dropsparameter\c!radius\relax
+      \expandafter\def\expandafter\@@@@drops!r \expandafter{\numberofpixels{\dimexpr\dropsparameter\c!radius\relax}}}%
+   \expandafter\def\expandafter\@@@@drops!psigma \expandafter{\numberofpixels{\dimexpr\dropsparameter\c!psigma\relax}}%
+   \expandafter\def\expandafter\@@@@drops!usigma \expandafter{\numberofpixels{\dimexpr\dropsparameter\c!usigma\relax}}%
+   \expandafter\def\expandafter\@@@@drops!pdistance \expandafter{\numberofpixels{\dimexpr\dropsparameter\c!pdistance\relax}}%
+   \expandafter\def\expandafter\@@@@drops!udistance \expandafter{\numberofpixels{\dimexpr\dropsparameter\c!udistance\relax}}%
+   \doifnothing{\dropsparameter\c!mppath}% then create a path using the default graphic template
+     {\setbox\Pathbox\hbox{\dropscreatedefaultpath{\the\numexpr\dropsWidth}{\the\numexpr\dropsHeight}{\the\numexpr\dropsRadius}}}%
+%
+   \setuplayer[\@@@@drops!layer]
+      [\c!corner=\v!middle,\c!location=\v!middle, % center based placement
+       \c!height=\@@@@drops!h px, % always use 'px', as we deal with pixels here
+       \c!width=\@@@@drops!w px,
+      ]%
+   \if!!dropson
+   \dropscalculateoffsets{\dropsparameter\c!direction}{\the\numexpr\dropsparameter\c!offset}{\dropsparameter\c!rotation}{\dropscurrent{shiftx}}{\dropscurrent{shifty}}%
+   % also store some of the graphic independant parameters to make testing easier; all graphic related parameters are stored at the lua end
+   \startluacode
+   local c = thirddata.drops.parameters.current
+   c.offset    = \!!bs\@@@@drops!o\!!es
+   c.xoffset   = \!!bs\the\numexpr\dropsXPos\!!es
+   c.yoffset   = \!!bs\the\numexpr\dropsYPos\!!es
+   c.direction = \!!bs\dropsparameter\c!direction\!!es
+   c.rotation  = \!!bs\dropsparameter\c!rotation\!!es
+   c.setup     = \!!bs\dropsparameter\c!setup\!!es
+
+   local spec = {
+       width = "\the\numexpr\dropsWidth",
+       height = "\the\numexpr\dropsHeight",
+       radius = "\the\numexpr\dropsRadius",
+       psigma = "\@@@@drops!psigma",
+       usigma = "\@@@@drops!usigma",
+       umbra = \!!bs\dropsparameter\c!umbra\!!es,
+       penumbra = \!!bs\dropsparameter\c!penumbra\!!es,
+       resolution = \!!bs\dropsparameter\c!resolution\!!es,
+       fileformat = \!!bs\dropsparameter\c!fileformat\!!es,
+       colorspace = \!!bs\dropsparameter\c!colorspace\!!es,
+       shadowcolor = \!!bs\dropsparameter\c!shadowcolor\!!es,
+       shadowbackgroundcolor = \!!bs\dropsparameter\c!shadowbackgroundcolor\!!es,
+       mppath= \!!bs\dropsparameter\c!mppath\!!es,
+       pdistance = "\@@@@drops!pdistance",
+       udistance = "\@@@@drops!udistance",
+   }
+   if thirddata.drops.im_version ~= IM_NO_VERSIONNUMBER then thirddata.drops.shadow(spec) end
+   \stopluacode
+   \setlayerframed[\@@@@drops!layer][hoffset=\dropsXPos,voffset=\dropsYPos]
+      [\c!offset=\v!overlay,\c!strut=no,
+       \c!frame=\DBG@frame,\c!rulethickness=.1pt,\c!framecolor=dbg:shadowframe]%
+      {\externalfigure[{\currentshadowname}]}%
+   \fi % dropson
+   \setlayerframed[\@@@@drops!layer][]
+      [\c!width=\@@@@drops!w px,
+       \c!height=\@@@@drops!h px,
+       \c!radius=\@@@@drops!r px,
+       \c!backgroundradius=\@@@@drops!r px,
+       \c!frameradius=\@@@@drops!r px,
+       \c!corner=\ifdim\dimexpr\@@@@drops!r px\relax>\zeropoint \v!round\else\v!rectangular\fi,
+       \c!frame=\DBG@frame,\c!rulethickness=.1pt,\c!framecolor=dbg:objectframe,
+       \c!backgroundcolor=\dropsparameter\c!backgroundcolor,
+       \c!background=\dropsparameter\c!background,
+       \c!offset=\v!overlay,\c!align={\v!middle,\v!lohi}, % needed for background color
+       #2]{#3}%
+   \vbox{\hsize\dimexpr\@@@@drops!w px\relax\vsize\dimexpr\@@@@drops!h px\relax % photons do not count
+       \flushlayer[\@@@@drops!layer]}%
+   \fi % trialtypesetting
+  }
+
+
+\def\setupdrops{\dosingleempty\dosetupdrops}
+
+\def\dosetupdrops[#1]%
+  {\iffirstargument\getparameters[\????dropssetup][#1,{\c!setup=}]% never parameter 'setup'
+    \doifsomething{\csname\????dropssetup\c!resolution\endcsname}% needed for reliable results of standalone numberofpixel() calls
+    {\pdfpxdimen\dimexpr1in/\numexpr\csname\????dropssetup\c!resolution\endcsname\relax\relax}\else
+   \ctxlua{thirddata.drops.resetdrops()}\fi} % reset all parameters to their default, when no argument is given
+
+
+\unexpanded\def\!!dropscontrol
+  {\if!!dropsdo\ctxlua{thirddata.drops.batch_control()}\fi}
+
+\appendtoks\!!dropscontrol\to\everybye
+
+% D initialize module parameters
+\setupdrops
+% TODO: parameter passing from \usemodule[drops][...]; which parameters ?
+% D load some presets
+\usemodule[t-drops-setups]
+
+
+\protect
+
+\stopmodule

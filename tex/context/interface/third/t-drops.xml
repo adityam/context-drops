@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<cd:interface xmlns:cd="http://www.pragma-ade.com/commands" name="context" language="en" version="2012.10.10">
+
+<cd:command name="drops" file="t-drops.mkvi">
+    <cd:sequence>
+        <cd:string value="drops"/>
+    </cd:sequence>
+    <cd:arguments>
+      <cd:assignments n="1" optional="yes" list="yes">
+        <cd:inherit name="setupdrops" n="1"/>
+        <cd:parameter name="setup" n="1">
+          <cd:constant type="the name(s) of one (or more) predefined setup(s)"/>
+        </cd:parameter>
+      </cd:assignments>
+      <cd:assignments n="2" optional="yes" list="yes">
+        <cd:inherit name="setupframed" n="1"/>
+      </cd:assignments>
+      <cd:content n="3"/>
+    </cd:arguments>
+</cd:command>
+
+<cd:command name="setupdrops" file="t-drops.mkvi">
+    <cd:sequence>
+        <cd:string value="setupdrops"/>
+    </cd:sequence>
+    <cd:arguments>
+      <cd:assignments n="1" list="yes">
+        <cd:parameter name="background">
+          <cd:constant type="screen"/>
+          <cd:constant type="color" default="yes"/>
+          <cd:constant type="none"/>
+          <cd:constant type="foreground"/>
+          <cd:constant type="cd:name"/>
+        </cd:parameter>
+        <cd:parameter name="backgroundcolor">
+          <cd:constant type="cd:name" default=""/>
+        </cd:parameter>
+        <cd:parameter name="colorspace">
+          <cd:constant type="(empty)" default="yes"/>
+          <cd:constant type="cmyk"/>
+          <cd:constant type="gray"/>
+          <cd:constant type="rgb"/>
+        </cd:parameter>
+        <cd:parameter name="direction">
+          <cd:constant type="cd:number" default="-45"/>
+        </cd:parameter>
+        <cd:parameter name="fileformat">
+          <cd:constant type="jpg"/>
+          <cd:constant type="png" default="yes"/>
+        </cd:parameter>
+       <cd:parameter name="mppath">
+          <cd:constant type="cd:name" default=""/>
+        </cd:parameter>
+       <cd:parameter name="offset">
+          <cd:constant type="cd:dimension"/>
+        </cd:parameter>
+        <cd:parameter name="pdistance">
+          <cd:constant type="cd:dimension"/>
+        </cd:parameter>
+        <cd:parameter name="penumbra">
+          <cd:constant type="cd:number"/>
+        </cd:parameter>
+       <cd:parameter name="psigma">
+          <cd:constant type="cd:dimension"/>
+        </cd:parameter>
+       <cd:parameter name="radius">
+          <cd:constant type="cd:dimension"/>
+        </cd:parameter>
+        <cd:parameter name="resolution">
+          <cd:constant type="cd:number" default="150"/>
+        </cd:parameter>
+        <cd:parameter name="rotation">
+          <cd:constant type="cd:number" default="0"/>
+        </cd:parameter>
+        <cd:parameter name="shadowbackgroundcolor">
+          <cd:constant type="cd:name"/>
+        </cd:parameter>
+        <cd:parameter name="shadowcolor">
+          <cd:constant type="cd:name" default="black"/>
+        </cd:parameter>
+        <cd:parameter name="udistance">
+          <cd:constant type="cd:dimension"/>
+        </cd:parameter>
+        <cd:parameter name="umbra">
+          <cd:constant type="cd:number"/>
+        </cd:parameter>
+       <cd:parameter name="usigma">
+          <cd:constant type="cd:dimension"/>
+        </cd:parameter>
+      </cd:assignments>
+    </cd:arguments>
+</cd:command>
+
+
+</cd:interface>
+

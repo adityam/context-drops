@@ -1,0 +1,35 @@
+\usemodule[drops]
+\setupcolors[pagecolormodel=auto]
+
+\registerctxluafile{overlay}{1.0}
+
+
+\def\overlayID{\ctxlua{context(thirddata.ovltest.getpathID("\overlaywidth","\overlayheight"))}}
+
+\def\generatepath#1#2#3{\setbox\Pathbox\hbox{\ctxlua{context(thirddata.ovltest.generatepath("#1","#2","#3"))}}}
+
+\defineoverlay[test]
+[{\generatepath\overlayID\overlaywidth\overlayheight% first generate, then use the path
+\drops[mppath=\overlayID,resolution=300,offset=0mm][width=\overlaywidth,height=\overlayheight,background=,empty=yes]{}}]
+
+
+
+\starttext
+\dropsshowframes
+\ctxlua{metapost.showlog = true}%
+%
+\framed[background=test,width=3cm,height=3cm,offset=overlay]{overlay=test}
+\ctxlua{inspect(metapost.variables)}%
+
+\blank[3*big]
+
+\framed[background=test,width=10cm,height=2cm,offset=overlay]{overlay=test}
+\ctxlua{inspect(metapost.variables)}%
+
+\blank[3*big]
+
+\framed[background=test,width=3cm,height=8cm,offset=overlay]{overlay=test}
+\ctxlua{inspect(metapost.variables)}%
+
+
+\stoptext

@@ -1,0 +1,324 @@
+\usemodule[drops]
+\usemodule[colo-imp-ema]
+
+\setupcolors[pagecolormodel=auto]
+
+\setupinteraction
+  [title=drops presets,
+   subtitle=shadow optimization,
+   author=Peter Rolf,
+   keyword={'ConTeXt module', shadows, ImageMagick},
+  ]
+
+% no color management without PDF/X...
+\setupbackend
+  [format=PDF/X-4p,
+   profile={srgb.icc},
+   intent={ISO Coated v2 300\letterpercent\space (ECI)},
+   level=4, % default 3
+  ]
+
+\definelayout[centered]
+  [width=middle,height=middle,
+   footer=0mm,header=0mm,
+   backspace=18mm,cutspace=18mm,
+   topspace=10mm,bottomspace=10mm,
+   ]
+
+\setuppapersize[A4,landscape][A4,landscape]
+%\setuppagenumber[state=stop]
+\setuppagenumbering[location=]
+
+
+
+
+\setupexternalfigures[directory=./include] % store your background images here
+
+
+
+% natural light has a higher blue proportion
+% use www.colorizer.org for HSV color conversion
+\definecolor[azure]    [h=007FFF] % hsv(210,100,50)
+\definecolor[azure:V20][h=001933] % hsv(210,100,20)
+
+\definecolor[contrast:light:gray]   [s=0.6]
+\definecolor[contrast:light:bluish] [r=0.4,g=0.5,b=0.6]
+\definecolor[contrast:light:bg]     [white]%[ghostwhite] % rgb(0.9725,0.9725,1)
+
+\definecolor[contrast:medium:gray]  [s=0.3]
+\definecolor[contrast:medium:bluish][r=0.15,g=0.3,b=0.45]
+\definecolor[contrast:medium:bg]    [white]%[gainsboro] % s=0.8627
+
+\definecolor[contrast:dark:gray]    [s=0]
+\definecolor[contrast:dark:bluish]  [r=0,g=0.1,b=0.2]
+\definecolor[contrast:dark:bg]      [white]%[lightslategray]
+
+\definecolor[lightbackground][r=1,g=1,b=.941176,a=1,t=.85]
+
+
+\unexpanded\def\dropssample[#1]{{\drops[#1][width=80mm,height=50mm]{\dropsshowtable}}{\dropscurrent{setup}}}
+
+% just for testing of bigger radii
+\startMPcode
+primarydef p wellrounded d =
+   (hide(path __helpcircle__; __helpcircle__ := unitcircle scaled d;)
+    subpath(4,6) of __helpcircle__ --
+    subpath(6,8) of __helpcircle__ xshifted(xpart(lrcorner p)-d) --
+    subpath(0,2) of __helpcircle__ shifted(xpart(lrcorner p)-d,ypart(urcorner p)-d) --
+    subpath(2,4) of __helpcircle__ yshifted(ypart(ulcorner p)-d) -- cycle)
+enddef ;
+\stopMPcode
+
+\startuniqueMPgraphic{dropscolor}{r,col}
+    fill OverlayBox wellrounded (2*\MPvar{r}) withcolor \MPvar{col};
+\stopuniqueMPgraphic
+
+
+\defineoverlay[dropscolor]
+[{\uniqueMPgraphic{dropscolor}{r=\dropsparameter{radius},col=\dropsparameter{backgroundcolor}}}]%
+
+\defineoverlay[gloomcolor]
+[{\blackrule[width=\dimexpr\paperwidth+6mm,height=\dimexpr\paperheight+6mm,color=gray30]}]%
+
+\defineoverlay[halocolor]
+[{\blackrule[width=\dimexpr\paperwidth+6mm,height=\dimexpr\paperheight+6mm,color=gray0]}]%
+
+\defineoverlay[bitmap]
+[{\rotate[rotation=0]{\externalfigure[b7metals026.jpg][width=\paperwidth]}}]%
+
+
+\startuniqueMPgraphic{drops:innersquare}{r}
+save p,w,h,r; picture p; numeric w,h,r;
+w:= OverlayWidth; h:= OverlayHeight; r:= \MPvar{r};
+
+if abs(r) > 0:
+    p:= OverlayBox enlarged 1mm -- OverlayBox smoothed r -- cycle;
+else:
+    p:= OverlayBox enlarged 1mm -- OverlayBox -- cycle;
+fi
+
+passarrayvariable("innersquare",p,1,2,1);
+setbounds currentpicture to OverlayBox;
+
+\stopuniqueMPgraphic
+
+%\setupbackgrounds[page][][background=]
+
+
+
+\starttext
+\setuplayout[centered]%
+%\showframe
+%
+%\enabletrackers[visualizers.glue]%
+%\setupdrops[shadowcolor={azure:V20},resolution=150]%
+\setupcombinations[distance=10mm,after={\blank[5mm]},inbetween={\blank[5mm]},style={\ssx}]%
+\vskip-4.7mm % mhh, \setupcombinations introduces some spurious space (even when called outside)
+%
+\startcombination[3*3]
+{\drops[setup=drops:flat:light,udistance=-0.37mm,pdistance=0mm,offset=0.5mm,direction=-90]
+[width=80mm,height=50mm]{\dropsshowtable}}{\dropscurrent{setup}}
+{\drops[setup=drops:flat:light,udistance=-0.37mm,pdistance=0mm,offset=0.6mm,direction=-90]
+[width=80mm,height=50mm]{\dropsshowtable}}{\dropscurrent{setup}}
+{\drops[setup=drops:flat:light,udistance=-0.37mm,pdistance=0mm,offset=0.7mm,direction=225]
+[width=80mm,height=50mm]{\dropsshowtable}}{\dropscurrent{setup}}
+%
+{\drops[setup=drops:flat:medium,udistance=-0.37mm,pdistance=0mm,offset=0.5mm,direction=-90]
+[width=80mm,height=50mm]{\dropsshowtable}}{\dropscurrent{setup}}
+{\drops[setup=drops:flat:medium,udistance=-0.37mm,pdistance=0mm,offset=0.6mm,direction=-90]
+[width=80mm,height=50mm]{\dropsshowtable}}{\dropscurrent{setup}}
+{\drops[setup=drops:flat:medium,udistance=-0.37mm,pdistance=0mm,offset=0.7mm,direction=225]
+[width=80mm,height=50mm]{\dropsshowtable}}{\dropscurrent{setup}}
+%
+{\drops[setup=drops:flat:dark,udistance=-0.37mm,pdistance=0mm,offset=0.5mm,direction=-90]
+[width=80mm,height=50mm]{\dropsshowtable}}{\dropscurrent{setup}}
+{\drops[setup=drops:flat:dark,udistance=-0.37mm,pdistance=0mm,offset=0.6mm,direction=-90]
+[width=80mm,height=50mm]{\dropsshowtable}}{\dropscurrent{setup}}
+{\drops[setup=drops:flat:dark,udistance=-0.37mm,pdistance=0mm,offset=0.7mm,direction=225]
+[width=80mm,height=50mm]{\dropsshowtable}}{\dropscurrent{setup}}
+\stopcombination
+%
+\page
+%
+\startcombination[3*3]
+\dropssample[setup=drops:hard:light,offset=0.76mm,direction=-90]
+\dropssample[setup=drops:hard:light,offset=1.08mm,direction=-90,udistance=-0.17mm,pdistance=0mm]
+\dropssample[setup=drops:hard:light,offset=1.18mm,direction=225,udistance=-0.68mm,pdistance=0mm]
+%
+\dropssample[setup=drops:hard:light,offset=1.35mm,direction=-90]
+\dropssample[setup=drops:hard:light,offset=1.02mm,direction=-90,udistance=0.34mm,pdistance=0.68mm]
+\dropssample[setup=drops:hard:light,offset=1.52mm,direction=225]
+%
+\dropssample[setup=drops:hard:light,offset=1.35mm,direction=225]
+\dropssample[setup=drops:hard:light,offset=1.52mm,direction=225]
+\dropssample[setup=drops:hard:light,offset=1.05mm,direction=225]
+\stopcombination
+
+
+
+\page
+
+\startcombination[3*3]
+\dropssample[setup=drops:hard:medium,backgroundcolor=contrast:medium:bg,shadowcolor=contrast:medium:gray,
+offset=1.35mm,direction=225]
+\dropssample[setup=drops:hard:medium,backgroundcolor=contrast:medium:bg,shadowcolor=contrast:medium:gray,
+offset=1.35mm,direction=225]
+\dropssample[setup=drops:hard:medium,backgroundcolor=contrast:medium:bg,shadowcolor=contrast:medium:gray,
+offset=1.52mm,direction=225]
+%
+\dropssample[setup=drops:hard:medium,backgroundcolor=contrast:medium:bg,shadowcolor=contrast:medium:gray,
+offset=1.52mm,direction=270]
+\dropssample[setup=drops:hard:medium,backgroundcolor=contrast:medium:bg,shadowcolor=contrast:medium:gray,
+offset=1.69mm,direction=270]
+\dropssample[setup=drops:hard:medium,backgroundcolor=contrast:medium:bg,shadowcolor=contrast:medium:gray,
+offset=1.86mm,direction=270]
+%
+\dropssample[setup=drops:hard:medium,backgroundcolor=contrast:medium:bg,shadowcolor=contrast:medium:bluish,
+offset=1.52mm,direction=0]
+\dropssample[setup=drops:hard:medium,backgroundcolor=contrast:medium:bg,shadowcolor=contrast:medium:bluish,
+offset=1.69mm,direction=0]
+\dropssample[setup=drops:hard:medium,backgroundcolor=contrast:medium:bg,shadowcolor=contrast:medium:bluish,
+offset=1.86mm,direction=0]
+\stopcombination
+
+
+\page
+
+\startcombination[3*3]
+\dropssample[setup=drops:hard:dark,backgroundcolor=contrast:dark:bg,shadowcolor=contrast:dark:gray,
+offset=1.35mm,direction=225]
+\dropssample[setup=drops:hard:dark,backgroundcolor=contrast:dark:bg,shadowcolor=contrast:dark:gray,
+offset=1.35mm,direction=225]
+\dropssample[setup=drops:hard:dark,backgroundcolor=contrast:dark:bg,shadowcolor=contrast:dark:gray,
+offset=1.52mm,direction=225]
+%
+\dropssample[setup=drops:hard:dark,backgroundcolor=contrast:dark:bg,shadowcolor=contrast:dark:gray,
+offset=1.52mm,direction=270]
+\dropssample[setup=drops:hard:dark,backgroundcolor=contrast:dark:bg,shadowcolor=contrast:dark:gray,
+offset=1.69mm,direction=270]
+\dropssample[setup=drops:hard:dark,backgroundcolor=contrast:dark:bg,shadowcolor=contrast:dark:gray,
+offset=1.86mm,direction=270]
+%
+\dropssample[setup=drops:hard:dark,backgroundcolor=contrast:dark:bg,shadowcolor=contrast:dark:bluish,
+offset=1.52mm,direction=0]
+\dropssample[setup=drops:hard:dark,backgroundcolor=contrast:dark:bg,shadowcolor=contrast:dark:bluish,
+offset=1.69mm,direction=0]
+\dropssample[setup=drops:hard:dark,backgroundcolor=contrast:dark:bg,shadowcolor=contrast:dark:bluish,
+offset=1.86mm,direction=0]
+\stopcombination
+
+
+
+\page
+
+\startcombination[3*3]
+\dropssample[setup=drops:soft:light, direction=225]
+\dropssample[setup=drops:soft:medium,direction=225]
+\dropssample[setup=drops:soft:dark,  direction=225]
+%
+\dropssample[setup=drops:soft:light, direction=270]
+\dropssample[setup=drops:soft:medium,direction=270]
+\dropssample[setup=drops:soft:dark,  direction=270]
+%
+\dropssample[setup={drops:soft:light},direction=0]
+\dropssample[setup={drops:soft:medium},direction=0]
+\dropssample[setup={drops:soft:dark},direction=0]
+\stopcombination
+
+
+\page
+\setupbackgrounds[page][][background=gloomcolor]%
+\definecolor[gloombg][gray80]%
+%
+\startcombination[3*3]
+{\drops[setup=drops:gloom,umbra=80,penumbra=70,backgroundcolor=gloombg,shadowcolor=azure:V20]
+[width=80mm,height=50mm]{\dropsshowtable}}
+{\dropscurrent{setup}}
+{\drops[setup=drops:gloom,umbra=80,penumbra=70,backgroundcolor=gloombg,shadowcolor=black]
+[width=80mm,height=50mm]
+{\bgroup\startcolor[black]\switchtobodyfont[42pt,bold]\tt drops\stopcolor\egroup}}
+{\dropscurrent{setup}}
+{} {}
+%
+{} {}
+{\drops[setup=drops:gloom,umbra=80,penumbra=70,backgroundcolor=gloombg,shadowcolor=black,
+radius=8mm,background=dropscolor]
+[width=80mm,height=50mm]
+{\bgroup\startcolor[black]\switchtobodyfont[42pt,bold]\tt drops\stopcolor\egroup}}
+{\dropscurrent{setup}}
+{} {}
+%
+{} {}
+{} {}
+{} {}
+\stopcombination
+
+\page
+\setupbackgrounds[page][][background=halocolor]%
+\definecolor[halobg][r=0.117,g=0.167,b=0.225]%
+\definecolor[halobg][gray40]%
+%
+\startcombination[3*3]
+{\drops[setup=drops:halo,umbra=100,penumbra=80,backgroundcolor=halobg,shadowcolor=white]
+[width=80mm,height=50mm]
+{\startcolor[white]\dropsshowtable\stopcolor}}
+{\startcolor[white]\dropscurrent{setup}\stopcolor}
+{\drops[setup=drops:halo,umbra=100,penumbra=80,backgroundcolor=halobg,shadowcolor=white]
+[width=80mm,height=50mm]
+{\bgroup\startcolor[white]\switchtobodyfont[42pt,bold]\tt drops\stopcolor\egroup}}
+{\startcolor[white]\dropscurrent{setup}\stopcolor}
+{} {}
+%
+{} {}
+{\drops[setup=drops:halo,umbra=100,penumbra=80,backgroundcolor=halobg,shadowcolor=white,
+radius=8mm,background=dropscolor]
+[width=80mm,height=50mm]
+{\bgroup\startcolor[white]\switchtobodyfont[42pt,bold]\tt drops\stopcolor\egroup}}
+{\startcolor[white]\dropscurrent{setup}\stopcolor}
+{} {}
+%
+{} {}
+{} {}
+{} {}
+\stopcombination
+
+% bitmap as page background
+
+%% \page
+%% \setupbackgrounds[page][][background=bitmap]
+%% \setupdrops
+%% \startcombination[3*3]
+%% {\drops[umbra=80,penumbra=70,usigma=0mm,psigma=2mm,
+%%   backgroundcolor=lightbackground,
+%%   shadowcolor=black,
+%%   direction=-120,offset=1.7mm]
+%% [width=80mm,height=50mm]{\dropsshowtable}}{\dropscurrent{setup}}
+%% {\drops[umbra=80,penumbra=70,usigma=0mm,psigma=2mm,
+%%   backgroundcolor=dodgerblue,
+%%   shadowcolor=azure:V20,
+%%   direction=0,offset=0mm]
+%% [width=80mm,height=50mm]{\dropsshowtable}}{\dropscurrent{setup}}
+%% {} {}
+%% %
+%% {\drops[setup=drops:halo,umbra=100,penumbra=80,shadowcolor=white]
+%% [width=80mm,height=50mm]{\dropsshowtable}}{\dropscurrent{setup}}
+%% {\drops[umbra=80,penumbra=70,usigma=0mm,psigma=2mm,
+%%   backgroundcolor=lightbackground,
+%%   shadowcolor=black,
+%%   direction=-120,offset=1.7mm]
+%% [width=80mm,height=50mm]{\dropsshowtable}}{\dropscurrent{setup}}
+%% {\drops[umbra=30,penumbra=20,usigma=0mm,psigma=2mm]
+%% [width=80mm,height=50mm]{\dropsshowtable}}{\dropscurrent{setup}}
+%% %
+%% {\drops[setup=drops:gloom,umbra=80,penumbra=70,shadowcolor=azure:V20]
+%% [width=80mm,height=50mm]{\dropsshowtable}}{\dropscurrent{setup}}
+%% {\drops[setup=drops:gloom,umbra=80,penumbra=70,shadowcolor=black]
+%% [width=80mm,height=50mm]{\dropsshowtable}}{\dropscurrent{setup}}
+%% {\drops[umbra=40,penumbra=25,usigma=0mm,psigma=2mm]
+%% [width=80mm,height=50mm]{\dropsshowtable}}{\dropscurrent{setup}}
+
+%% \stopcombination
+
+
+\stoptext
+
