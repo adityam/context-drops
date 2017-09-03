@@ -1,13 +1,13 @@
 if not modules then modules = { } end modules ['t-drops'] = {
-    version   = 1.000,
-    comment   = "Drop shadows",
-    author    = "Peter Rolf",
+    version = 1.000,
+    comment = "Drop shadows",
+    author = "Peter Rolf",
     copyright = "Peter Rolf",
-    email     = "peter.rolf@arcor.de",
-    license   = "GNU General Public License"
+    email = "peter.rolf@arcor.de",
+    license = "GNU General Public License"
 }
 
-local version_string = "version: 2016.01.18" -- for batch file
+local version_string = "version: 2017.08.24" -- for batch file
 
 local lpeg = require("lpeg")
 local lpegmatch = lpeg.match
@@ -27,7 +27,7 @@ local trace_drops = false  trackers.register("modules.drops", function(v) trace_
 local trace_drops_path = false trackers.register("modules.drops.path", function(v) trace_drops_path = v end)
 local report_drops = logs.new("drops")
 
-thirddata       = thirddata       or { }
+thirddata = thirddata or { }
 thirddata.drops = thirddata.drops or { }
 
 local drops = thirddata.drops
@@ -35,25 +35,24 @@ local drops = thirddata.drops
 drops.parameters = drops.parameters or { }
 -- fallback parameter
 local fallback = {
-               background = "color",-- \framed parameter
-          backgroundcolor = "white",-- \framed parameter
-               colorspace = "",-- derived from shadowcolor, overriding is possible
-                direction = "-45",
-               fileformat = "png",
-                   mppath = "",
-                   offset = "1.69mm", -- 10px@150ppi
-                pdistance = "0.51mm", -- 3px@150ppi
-                 penumbra = "40",
-                   psigma = "1.52mm", -- 9px@150ppi
-                   radius = "0mm", -- boxshadow only
-               resolution = "150",-- in ppi (pixel per inch)
-                 rotation = "0",
-                    setup = "",-- no setup in the defaults; never
+    background = "color",-- \framed parameter
+    backgroundcolor = "white",-- \framed parameter
+    direction = "-45",
+    fileformat = "png",
+    mppath = "",
+    offset = "1.69mm", -- 10px@150ppi
+    pdistance = "0.51mm", -- 3px@150ppi
+    penumbra = "40",
+    psigma = "1.52mm", -- 9px@150ppi
+    radius = "0mm", -- boxshadow only
+    resolution = "150",-- in ppi (pixel per inch)
+    rotation = "0",
+    setup = "",-- no setup in the defaults; never
     shadowbackgroundcolor = "white",
-              shadowcolor = "black",
-                udistance = "0mm",
-                    umbra = "50",
-                   usigma = "0.85mm", -- 5px@150ppi
+    shadowcolor = "black",
+    udistance = "0mm",
+    umbra = "50",
+    usigma = "0.85mm", -- 5px@150ppi
 }
 
 -- also used as initial value for the defaults; these values can be changed by the user
@@ -63,27 +62,26 @@ drops.parameters.defaults = fastcopy(fallback)
 -- must be initialised properly to handle too early calls in combination with \dropsshowtable...
 -- note that these parameters are already interpreted (type is assigned)
 -- the initialisation values don't count here, only 'type' must fit
-drops.parameters.current  = {
-          backgroundcolor = "white",
-               colorspace = "",
-                direction = -45,
-               fileformat = "png",
-                   mppath = "",
-                   offset = "1.69mm",
-                pdistance = "0.51mm",
-                 penumbra = 40,
-                   psigma = 9,
-                   radius = 0,
-               resolution = 150,
+drops.parameters.current = {
+    backgroundcolor = "white",
+    direction = -45,
+    fileformat = "png",
+    mppath = "",
+    offset = "1.69mm",
+    pdistance = "0.51mm",
+    penumbra = 40,
+    psigma = 9,
+    radius = 0,
+    resolution = 150,
     shadowbackgroundcolor = "white",
-              shadowcolor = "black",
-                   shiftx = 0,
-                   shifty = 0,
-                    umbra = 50,
-                udistance = "0mm",
-                   usigma = 5,
-                  xoffset = 7.2,
-                  yoffset = -7.2,
+    shadowcolor = "black",
+    shiftx = 0,
+    shifty = 0,
+    umbra = 50,
+    udistance = "0mm",
+    usigma = 5,
+    xoffset = 7.2,
+    yoffset = -7.2,
 }
 
 -- http://lua-users.org/wiki/SimpleRound
@@ -101,7 +99,7 @@ local numberofpixels = drops.numberofpixels
 
 
 function drops.resetdrops()
-   context.setupdrops(fallback) -- a 'delayed' call even works when \setupdrops is still undefined
+    context.setupdrops(fallback) -- a 'delayed' call even works when \setupdrops is still undefined
 end
 
 function drops.getdefault(name)
@@ -125,34 +123,34 @@ local percent_sign, dir_separator, continue_line, exclamation_mark, left_parenth
 -- The readability is also a problem with very long paths.
 local IM_MAX_PATH_LIMIT = 750 -- TODO: initial value, needs testing
 
-local double_quote    = [["]]
+local double_quote = [["]]
 
 if os.type == "windows" then
-         im_batchfile = "drops-" .. tex.jobname .. ".bat"
+    im_batchfile = "drops-" .. tex.jobname .. ".bat"
     if trace_drops then
         im_batchstart = ":: 'drops' batch file for ImageMagick (www.imagemagick.org)\n" ..
-                ":: " .. version_string .. "\n"
+        ":: " .. version_string .. "\n"
     else
         im_batchstart = "@ECHO OFF\n:: 'drops' batch file for ImageMagick (www.imagemagick.org)\n" ..
-                ":: " .. version_string .. "\n"
+        ":: " .. version_string .. "\n"
     end
-         comment_sign = [[::]]
-         percent_sign = [[%%%%]]
-        dir_separator = [[\]]
-        continue_line = "^\n "
-     exclamation_mark = [[!]]
-     left_parenthesis = [[ ( ]]
+    comment_sign = [[::]]
+    percent_sign = [[%%%%]]
+    dir_separator = [[\]]
+    continue_line = "^\n "
+    exclamation_mark = [[!]]
+    left_parenthesis = [[ ( ]]
     right_parenthesis = [[ ) ]]
 else
-         im_batchfile = "drops-" .. tex.jobname
-        im_batchstart = "#!/bin/sh\n#'drops' batch file for ImageMagick (www.imagemagick.org)\n" ..
-                "# " .. version_string .. "\n "
-         comment_sign = [[#]]
-         percent_sign = [[%%]]
-        dir_separator = [[/]]
-        continue_line = "\\\n "
-     exclamation_mark = [[\!]]
-     left_parenthesis = [[ \( ]]
+    im_batchfile = "drops-" .. tex.jobname
+    im_batchstart = "#!/bin/sh\n#'drops' batch file for ImageMagick (www.imagemagick.org)\n" ..
+    "# " .. version_string .. "\n "
+    comment_sign = [[#]]
+    percent_sign = [[%%]]
+    dir_separator = [[/]]
+    continue_line = "\\\n "
+    exclamation_mark = [[\!]]
+    left_parenthesis = [[ \( ]]
     right_parenthesis = [[ \) ]]
 end
 
@@ -163,10 +161,10 @@ function drops.currentshadowid() context(current_shadow_id) end
 function drops.spec()
     local c = drops.parameters.current
     return {
-        id        = c.shadow_id, name     = c.shadow_name,
-        umbra     = c.umbra    , usigma   = c.usigma,   udistance = c.udistance,
-        penumbra  = c.penumbra , psigma   = c.psigma,   pdistance = c.pdistance,
-        offset    = c.offset   , xoffset  = c.xoffset , yoffset   = c.yoffset,
+        id = c.shadow_id, name = c.shadow_name,
+        umbra = c.umbra, usigma = c.usigma, udistance = c.udistance,
+        penumbra = c.penumbra, psigma = c.psigma, pdistance = c.pdistance,
+        offset = c.offset, xoffset = c.xoffset, yoffset = c.yoffset,
         direction = c.direction, rotation = c.rotation,
         resolution = c.resolution,
         shadowcolor = c.shadowcolor,
@@ -266,36 +264,37 @@ local current_shadow_name = "" -- initialisation is needed for \dropsshowtable
 function drops.currentshadowname() context(currentshadowpath() .. "/" .. current_shadow_name) end
 
 
-local IM_NO_VERSIONNUMBER     = -1
+local IM_NO_VERSIONNUMBER = -1
 local IM_NO_VERSIONNUMBER_TXT = "not available"
 -- get version number of ImageMagick
 local function get_im_version()
-    local identify_command = "identify -version" -- "identify -list configure" is not usable on Windows
-    local C, Cs, P, R, S, V = lpeg.C, lpeg.Cs, lpeg.P, lpeg.R, lpeg.S, lpeg.V
+    local IM6_version_command = "identify -version" -- "identify -list configure" is not usable on Windows
+    local IM7_version_command = "magick -version"
+    local versionstring = os.resultof(IM6_version_command)
+    if versionstring == "" then
+        versionstring = os.resultof(IM7_version_command)
+    end
 
-    local cleanup = Cs( ( S("\n\r") / " " +1 )^0 )
-    local versionstring = lpegmatch(cleanup,os.resultof(identify_command))
-
-    local number, point, minus = R('09'), P('.'), P('-')
-    local numbers = number^1
-    local versionnr = C(numbers) * point * C(numbers) * point * C(numbers) * minus * C(numbers)
-    local pattern   = P{ "ImageMagick " * versionnr + 1 * V(1) }
-
-    local version, versiontext
+    local version, versiontext, colordepth
     if versionstring ~= "" then
-        local mainversion, subversion, subsubversion, buildversion = lpegmatch(pattern,versionstring)
-        -- must be a number for comparision
-        version = tonumber(format("%02d%02d%02d%02d", mainversion,subversion,subsubversion,buildversion))
-        versiontext = format("%d.%d.%d-%d", mainversion,subversion,subsubversion,buildversion)
+        local C, Ct, P, R, V = lpeg.C, lpeg.Ct, lpeg.P, lpeg.R, lpeg.V
+        local number, point, minus = R('09'), P('.'), P('-')
+        local numbers = number^1
+        local versionnr = C(numbers) * point * C(numbers) * point * C(numbers) * minus * C(numbers)
+        local depth = " Q" * C(numbers) -- 8 or 16 bit per pixel (bpp)
+        local pattern = P{ "ImageMagick " * versionnr * depth + 1 * V(1) }
+
+        local n = lpegmatch(Ct(pattern), versionstring)
+        version = tonumber(format("%02d%02d%02d%02d", n[1], n[2], n[3], n[4])) -- must be a number for comparison
+        versiontext = format("%d.%d.%d-%d", n[1], n[2], n[3], n[4])
+        colordepth = tonumber(format("%s", n[5]))
     else -- can't get version info
         showmessage("drops","noversioninfo")
-        version, versiontext = IM_NO_VERSIONNUMBER, IM_NO_VERSIONNUMBER_TXT
+        version, versiontext, colordepth = IM_NO_VERSIONNUMBER, IM_NO_VERSIONNUMBER_TXT
     end
     report_drops("ImageMagick version = " .. versiontext)
-    return version, versiontext
+    return version, versiontext, colordepth
 end
-
-
 
 
 local function ensure_dir(path,dir)
@@ -304,7 +303,7 @@ local function ensure_dir(path,dir)
         if state ~= nil then
             if trace_drops then showmessage("drops","createdir",dir) end
         else if lower(errortxt) ~= "file exists" then
-            showmessage("drops","direrror",{dir,errortxt}) end
+             showmessage("drops","direrror",{dir,errortxt}) end
         end
     end
 end
@@ -322,7 +321,7 @@ end
 load_hash() -- at every run
 -- get version number of IM; if this fails, everything else is in vain
 if not drops.im_version then
-    drops.im_version, drops.im_versiontext = get_im_version() end
+    drops.im_version, drops.im_versiontext, drops.im_colordepth = get_im_version() end
 if drops.im_version == IM_NO_VERSIONNUMBER then context("\\dropsoff") end -- no working IM, no drops
 
 
@@ -340,13 +339,14 @@ local function save_hash() -- at every \bye (see batch_control() )
     if imhash then
         imhash:write(format("thirddata.drops.im_version=%d\n",drops.im_version or IM_NO_VERSIONNUMBER))
         imhash:write(format("thirddata.drops.im_versiontext=\"%s\"\n",drops.im_versiontext or "not available"))
+        imhash:write(format("thirddata.drops.im_colordepth=%d\n",drops.im_colordepth or 8))
         imhash:write(format("thirddata.drops.filecounter=%d\n",drops.filecounter or 0))
         imhash:write(table.serialize(drops.shadows,"thirddata.drops.shadows"))
         imhash:write("\n")
         imhash:write(table.serialize(drops.IMpaths,"thirddata.drops.IMpaths"))
         imhash:close()
         job.variables.tobesaved.DropsHashChecksum =
-            file.checksum(format("%s/drops-%s.lua",shadowdir,tex.jobname)) or "no checksum"
+         file.checksum(format("%s/drops-%s.lua",shadowdir,tex.jobname)) or "no checksum"
     else
         showmessage("drops","ioopenerror",{hashfile,err})
     end
@@ -378,7 +378,7 @@ local function batch_start()
         showmessage("drops","ioopenerror",{batchfile,err})
     end
     job.variables.tobesaved.DropsBatchChecksum =
-        file.checksum(format("%s/%s",shadowdir,im_batchfile)) or "no checksum"
+    file.checksum(format("%s/%s",shadowdir,im_batchfile)) or "no checksum"
 end
 
 function drops.batch_control()
@@ -388,32 +388,47 @@ end
 
 
 
-local function eight_bit(n)
-    return(round(n*255))
-end
-
-function drops.color2text(name)
-    local ctxt, model
-    if type(attributes.colors.spec) == "function" then -- introduced in beta 04.09.2012
-        local t  = attributes.colors.spec(name)
-        model = t.model
-
-        local eb = eight_bit
-        if model == "gray" then
-            ctxt = format("%s(%s)",model,eb(t.s))
-        elseif model == "rgb" then
-            ctxt = format("%s(%s,%s,%s)",model,eb(t.r),eb(t.g),eb(t.b))
-        elseif model == "cmyk" then
-            ctxt = format("%s(%s,%s,%s,%s)",model,eb(t.c),eb(t.m),eb(t.y),eb(t.k))
-        elseif model == "spot" then -- ???? untested
-            ctxt = format("%s(%s,%s,%s,%s)",model,eb(t.c),eb(t.m),eb(t.y),eb(t.k))
-            model = "cmyk"
-        else ctxt = name ; model = "rgb" -- just in case
-        end
-    else -- use X11 colors otherwise (ConTeXt colors are not supported in older versions)
-        ctxt = name ; model = "rgb"
+function drops.color2text(name, a)
+    local t = attributes.colors.spec(name)
+    local model, ctxt = t.model
+    local a = a or 1 -- opaque (8bpp) as fallback
+    local function bpp(n)
+        return(round(n * 255))
+-- return(round(n * (math.pow(2, drops.im_colordepth) -1) ))
     end
-    return ctxt,model
+
+    if a < 1 then
+        if model == "gray" then
+            ctxt = format("%sa(%s,%s)", model, bpp(t.s), bpp(a))
+        elseif model == "rgb" then
+            ctxt = format("%sa(%s,%s,%s,%s)",model, bpp(t.r), bpp(t.g), bpp(t.b), bpp(a))
+        elseif model == "cmyk" then
+            ctxt = format("%sa(%s,%s,%s,%s,%s)", model, bpp(t.c), bpp(t.m), bpp(t.y), bpp(t.k), bpp(a))
+        elseif model == "spot" then -- ???? untested
+            model = "cmyk"
+            ctxt = format("%sa(%s,%s,%s,%s,%s)", model, bpp(t.c), bpp(t.m), bpp(t.y), bpp(t.k), bpp(a))
+        else
+            showmessage("drops","wrongcolorspace")
+            model, ctxt = "gray", "graya(0, 255)"
+        end
+
+    else
+        if model == "gray" then
+            ctxt = format("%s(%s)", model, bpp(t.s))
+        elseif model == "rgb" then
+            ctxt = format("%s(%s,%s,%s)",model, bpp(t.r), bpp(t.g), bpp(t.b))
+        elseif model == "cmyk" then
+            ctxt = format("%s(%s,%s,%s,%s)", model, bpp(t.c), bpp(t.m), bpp(t.y), bpp(t.k))
+        elseif model == "spot" then -- ???? untested
+            model = "cmyk"
+            ctxt = format("%s(%s,%s,%s,%s)", model, bpp(t.c), bpp(t.m), bpp(t.y), bpp(t.k))
+        else
+            showmessage("drops","wrongcolorspace")
+            model, ctxt = "gray", "gray(0)"
+        end
+
+    end
+    return ctxt, model
 end
 
 
@@ -426,17 +441,17 @@ function drops.locateshadow(angle,offset,rotation,shiftx,shifty)
     sx = tonumber(shiftx)*65536
     sy = tonumber(shifty)*65536
     x,y = cos(a)*o+sx, sin(a)*o-sy
+
     texdimen.dropsXPos, texdimen.dropsYPos = x,-y -- write result into register
 end
 
 
 local TIME_INTERVAL = 1/25
-
 local PATH_MIN_OFFSET = 1 -- minimal offset (in px)
 local PATH_MAX_ERROR = 1.5 -- maximal allowed difference before complaining (sqrt(2) for a rectangular corner; spiky ones have much higher values)
 
 local FACTOR_POST = 1/3
-local FACTOR_PRE  = 2/3
+local FACTOR_PRE = 2/3
 
 local ACCURACY_POINT = 5 -- accuracy for points
 local ACCURACY_SHIFT = 3 -- correction shift
@@ -450,15 +465,15 @@ local AREA_THRESHOLD = 0.00001
 local PARALLELISM_THRESHOLD = 0.00050
 
 -- some helper macros for point locations in the path
-local function point(p,i)  return { p[i][1], p[i][2] } end
-local function cp1(p,i)    return { p[i][3], p[i][4] } end -- pre control point
-local function cp2(p,i)    return { p[i][5], p[i][6] } end -- post
+local function point(p,i) return { p[i][1], p[i][2] } end
+local function cp1(p,i) return { p[i][3], p[i][4] } end -- pre control point
+local function cp2(p,i) return { p[i][5], p[i][6] } end -- post
 
 
 local function calculate_point(A,B,C,D,t)
     local ax,ay,bx,by,cx,cy,dx,dy = A[1],A[2],B[1],B[2],C[1],C[2],D[1],D[2]
 
-    if     t == 0 then return ax,ay
+    if t == 0 then return ax,ay
     elseif t == 1 then return dx,dy
     else
         local t2,t3,tx,ty
@@ -557,17 +572,17 @@ local function get_single_path_extrema(path)
             end
         end -- x,y
 
-        P1 = P4
-     end -- path
+    P1 = P4
+    end -- path
 
-     local x_min,x_max,y_min,y_max
-     x_min = min(unpack(rx)) ; x_max = max(unpack(rx))
-     y_min = min(unpack(ry)) ; y_max = max(unpack(ry))
+    local x_min,x_max,y_min,y_max
+    x_min = min(unpack(rx)) ; x_max = max(unpack(rx))
+    y_min = min(unpack(ry)) ; y_max = max(unpack(ry))
 
-     if trace_drops_path then
-         report_drops("get_single_path_extrema:  x=(%.5f,%.5f), y=(%.5f,%.5f)",x_min,x_max,y_min,y_max)
-     end
-     return x_min,x_max,y_min,y_max
+    if trace_drops_path then
+        report_drops("get_single_path_extrema:  x=(%.5f,%.5f), y=(%.5f,%.5f)",x_min,x_max,y_min,y_max)
+    end
+    return x_min,x_max,y_min,y_max
 end
 
 
@@ -677,9 +692,9 @@ local function get_offsets(A,B,C,D,d1,d2)
 
         if trace_drops_path then
             report_drops("get_offsets: (A,B,C,D),d1,d2 = ( (%d,%d), (%d,%d), (%d,%d), (%d,%d) ),%d,%d",
-                     ax,ay,bx,by,cx,cy,dx,dy,d1,d2)
+             ax,ay,bx,by,cx,cy,dx,dy,d1,d2)
             report_drops("get_offsets: length_AB=%.1f, length_BC=%.1f, length_CD=%.1f",
-                     length_AB,length_BC,length_CD)
+             length_AB,length_BC,length_CD)
         end
 
         local AB,BC,CD = length_AB>0, length_BC>0, length_CD>0
@@ -687,7 +702,7 @@ local function get_offsets(A,B,C,D,d1,d2)
         -- get normals for the three sections and divide them by their length; we get unit vectors
         local unit_AB,unit_BC,unit_CD
         -- x=-y, y=x
-        if     AB then unit_AB = unit_vector(A,B,length_AB) -- A~=B
+        if AB then unit_AB = unit_vector(A,B,length_AB) -- A~=B
         elseif BC then unit_BC = unit_vector(B,C,length_BC) -- A=B, B~=C
             unit_AB = unit_BC
         elseif CD then unit_CD = unit_vector(C,D,length_CD) -- A=B=C, C~=D
@@ -700,7 +715,7 @@ local function get_offsets(A,B,C,D,d1,d2)
         end
 
         if not unit_BC then
-            if     BC then unit_BC = unit_vector(B,C,length_BC) -- B~=C
+            if BC then unit_BC = unit_vector(B,C,length_BC) -- B~=C
             elseif AB then unit_BC = unit_AB -- B=C, A~=B
             else --if CD then
                 unit_CD = unit_vector(C,D,length_CD) -- A=B=C, C~=D
@@ -709,7 +724,7 @@ local function get_offsets(A,B,C,D,d1,d2)
         end
 
         if not unit_CD then
-            if     CD then unit_CD = unit_vector(C,D,length_CD) -- C~=D
+            if CD then unit_CD = unit_vector(C,D,length_CD) -- C~=D
             elseif BC then unit_CD = unit_BC -- C=D, B~=C
             else --if AB then
                 unit_CD = unit_AB -- B=C=D, A~=B
@@ -731,7 +746,6 @@ local function get_offsets(A,B,C,D,d1,d2)
             P1,P2,P3,P4 = T1,{},{},T6 -- first and last points are ok (for now);
 
             if points_are_collinear(T1,T2,T3,T4) then
-
                 tx = T6[x]-T1[x]; ty = T6[y]-T1[y]
                 P2 = { T1[x]+ FACTOR_POST*tx, T1[y]+ FACTOR_POST*ty }
                 P3 = { T1[x]+ FACTOR_PRE *tx, T1[y]+ FACTOR_PRE *ty }
@@ -754,7 +768,6 @@ local function get_offsets(A,B,C,D,d1,d2)
                         report_drops("get_offsets: 2-4 are collinear; setting P3(pre) to (%.1f,%.1f)",P3[x],P3[y])
                     end
                 end
-
             end
 
         else P1,P2,P3,P4 = A,B,C,D
@@ -774,7 +787,6 @@ local function get_offsets(A,B,C,D,d1,d2)
             Q1,Q2,Q3,Q4 = T1,{},{},T6 -- first and last points are ok (for now);
 
             if points_are_collinear(T1,T2,T3,T4) then
-
                 tx = T6[x]-T1[x]; ty = T6[y]-T1[y]
                 Q2 = { T1[x]+ FACTOR_POST*tx, T1[y]+ FACTOR_POST*ty }
                 Q3 = { T1[x]+ FACTOR_PRE *tx, T1[y]+ FACTOR_PRE *ty }
@@ -797,7 +809,6 @@ local function get_offsets(A,B,C,D,d1,d2)
                         report_drops("get_offsets: 2-4 are collinear; setting Q3(pre) to (%.1f,%.1f)",Q3[x],Q3[y])
                     end
                 end
-
             end
 
         else Q1,Q2,Q3,Q4 = A,B,C,D
@@ -805,9 +816,9 @@ local function get_offsets(A,B,C,D,d1,d2)
 
         if trace_drops_path then
             report_drops("get_offsets: returning ( (%.1f,%.1f), (%.1f,%.1f), (%.1f,%.1f), (%.1f,%.1f) )",
-                         P1[x],P1[y],P2[x],P2[y],P3[x],P3[y],P4[x],P4[y])
+             P1[x],P1[y],P2[x],P2[y],P3[x],P3[y],P4[x],P4[y])
             report_drops("get_offsets:           ( (%.1f,%.1f), (%.1f,%.1f), (%.1f,%.1f), (%.1f,%.1f) )",
-                         Q1[x],Q1[y],Q2[x],Q2[y],Q3[x],Q3[y],Q4[x],Q4[y])
+             Q1[x],Q1[y],Q2[x],Q2[y],Q3[x],Q3[y],Q4[x],Q4[y])
         end
 
 
@@ -901,8 +912,8 @@ end
 function drops.createboxshadowpath(width,height,radius)
     local pathid = drops.getboxshadowid(width,height,radius)
     if not metapost.variables[pathid] then
-        generate_default_path(pathid,width,height,radius)
---        context(function() inspect(metapost.variables[pathid]) end)
+    generate_default_path(pathid,width,height,radius)
+    --context(function() inspect(metapost.variables[pathid]) end)
     end
 end
 
@@ -928,14 +939,13 @@ local function adapt_path_to_IM(name,pathid,resolution) -- name of original MP p
                 q = p[i]
                 for j=1,#q do
                     q[j][1] =  q[j][1] * s; q[j][3] =  q[j][3] * s; q[j][5] =  q[j][5] * s -- x-values
-                    q[j][2] = -q[j][2] * s; q[j][4] = -q[j][4] * s; q[j][6] = -q[j][6] * s -- swap orientation of y-values
+                    q[j][2] = -q[j][2] * s; q[j][4]= -q[j][4] * s; q[j][6] = -q[j][6] * s -- swap orientation of y-values
                 end
             end
         else -- special handling of boxshadow paths (already in px)
             for i=1,#p do -- for all sub paths
                 q = p[i]
                 for j=1,#q do
-                    q = p[i]
                     q[j][2] = -q[j][2]; q[j][4] = -q[j][4]; q[j][6] = -q[j][6] -- swap orientation of y-values
                 end
             end
@@ -945,10 +955,9 @@ local function adapt_path_to_IM(name,pathid,resolution) -- name of original MP p
 
         -- path should be fine now (right scaled and only positive coordinates)
         -- store the 'IM ready' path for later usage
-        drops.IMpaths[pathid] = {
-            path = fastcopy(p)
-        }
+        drops.IMpaths[pathid] = { path = fastcopy(p) }
         return true
+
     else
         showmessage("drops","nomppath",name)
         return nil
@@ -1142,9 +1151,9 @@ end
 function drops.shadow(specification)
     local spec = specification
 
-    local width,height,radius,mppath,resolution
-    local penumbra,psigma,pdistance
-    local    umbra,usigma,udistance
+    local width, height, radius, mppath, resolution
+    local penumbra, psigma, pdistance
+    local umbra, usigma, udistance
 
     local filecounter = drops.filecounter
 
@@ -1165,14 +1174,14 @@ function drops.shadow(specification)
 
     -- if no path is given, the default boxshadow template snaps in..
     if mppath == "" then
-        mppath = drops.getboxshadowid(spec.width,spec.height,spec.radius)
-        drops.createboxshadowpath(spec.width,spec.height,spec.radius)
-        pathid = format("%s_%dppi",mppath,resolution)
+        mppath = drops.getboxshadowid(spec.width, spec.height, spec.radius)
+        drops.createboxshadowpath(spec.width, spec.height, spec.radius)
+        pathid = format("%s_%dppi", mppath, resolution)
         if not drops.IMpaths[pathid] then
-            context(adapt_path_to_IM(mppath,pathid)) -- no scaling needed
+            context(adapt_path_to_IM(mppath, pathid)) -- no scaling needed
         end
     else
-        path_id = format("%s_%dppi",mppath,resolution)
+        path_id = format("%s_%dppi",mppath, resolution)
     end
 
     -- check canvas sizes of the subshadows;
@@ -1195,21 +1204,16 @@ function drops.shadow(specification)
         penumbra = tonumber(fallback.penumbra)
     end
 
-    local fileformat,colorspace,shadowcolor,shadowbackgroundcolor
-               fileformat = lower(spec.fileformat       or fallback.fileformat)
-              shadowcolor = spec.shadowcolor            or fallback.shadowcolor
-    shadowbackgroundcolor = spec.shadowbackgroundcolor  or fallback.shadowbackgroundcolor -- only relevant for flattening  (JPG)
+    local fileformat, colorspace, shadowcolor, shadowbackgroundcolor
+    fileformat = lower(spec.fileformat or fallback.fileformat)
+    shadowcolor = spec.shadowcolor or fallback.shadowcolor
+    shadowbackgroundcolor = spec.shadowbackgroundcolor or fallback.shadowbackgroundcolor -- only relevant for flattening  (JPG)
 
     local color2text = drops.color2text
-    -- a declared color space is the sign here, that the given color is handled as text; passed to IM as it is
-    -- this way older ConTeXt versions can also use any color
-    if spec.colorspace == "" then
-        -- convert ConTeXt colors to text form, e.g. "red" -> "rgb(255,0,0)"; also derives the used colorspace from the given color
-        shadowcolor, colorspace = color2text(shadowcolor)
-          shadowbackgroundcolor = color2text(shadowbackgroundcolor)
-    else
-        colorspace = spec.colorspace -- color is given in text form (X11 color name or as 'rgb(),gray(),cmyk()');
-    end
+    -- convert ConTeXt colors to text form, e.g. "red" -> "rgb(255,0,0)"; also derives the used colorspace from the given color
+    local shadowcolor_txt, shadowbackgroundcolor_txt
+    shadowcolor_txt, colorspace = color2text(shadowcolor)
+    shadowbackgroundcolor_txt = color2text(shadowbackgroundcolor) -- always opaque
 
     if not (fileformat == "png" or fileformat == "jpg") then
         showmessage("drops","wrongfileformat",fileformat)
@@ -1226,25 +1230,25 @@ function drops.shadow(specification)
 
 
     if trace_drops then
-        report_drops("drops.boxshadow: w=%s, h=%s, r=%s, d=%s, umbra=%s, penumbra=%s, usigma=%s, psigma=%s, udistance=%d, pdistance=%d, col=%s, bgcol=%s, format=%s, colspace=%s, shbgcol=%s, mppath=%s",width,height,radius,resolution,umbra,penumbra,usigma,psigma,udistance,pdistance,shadowcolor,shadowbackgroundcolor,fileformat,colorspace,shadowbackgroundcolor,mppath)
+        report_drops("drops.boxshadow: w=%s, h=%s, r=%s, d=%s, umbra=%s, penumbra=%s, usigma=%s, psigma=%s, udistance=%d, pdistance=%d, col=%s, bgcol=%s, format=%s, colspace=%s, mppath=%s",width,height,radius,resolution,umbra,penumbra,usigma,psigma,udistance,pdistance,shadowcolor_txt,shadowbackgroundcolor_txt,fileformat,colorspace,mppath)
     end
 
 
     -- internal shadow id
     local shadow_id = format("%s-%s-%s_%s_o%d:%d_s%d:%s_d%d:%s_%dppi_%s",
-                       colorspace,shadowcolor,shadowbackgroundcolor,mppath,umbra,penumbra,usigma,psigma,udistance,pdistance,resolution,fileformat)
+     colorspace,shadowcolor_txt,shadowbackgroundcolor_txt,mppath,umbra,penumbra,usigma,psigma,udistance,pdistance,resolution,fileformat)
     current_shadow_id = shadow_id
 
     -- store the parameter for later usage (mainly for creating presets and also testing)
     local function store_current_parameters()
         local c = drops.parameters.current
-        c.shadow_id = shadow_id; c.shadow_name = shadowname
-        c.umbra = umbra; c.penumbra = penumbra
-        c.usigma = usigma; c.psigma = psigma
-        c.udistance = udistance; c.pdistance = pdistance
-        c.resolution = resolution
-        c.shadowcolor = shadowcolor; c.colorspace = colorspace
-        c.shadowbackgroundcolor = shadowbackgroundcolor
+        c.shadow_id = shadow_id ; c.shadow_name = shadowname
+        c.umbra = umbra ; c.penumbra = penumbra
+        c.usigma = usigma ; c.psigma = psigma
+        c.udistance = udistance ; c.pdistance = pdistance
+        c.resolution = resolution ;
+        c.shadowcolor = shadowcolor_txt ; c.colorspace = colorspace
+        c.shadowbackgroundcolor = shadowbackgroundcolor_txt
     end
 
 
@@ -1278,7 +1282,7 @@ function drops.shadow(specification)
         filecounter = filecounter + 1
         drops.filecounter = filecounter
         shadowname = format(filename_template,
-                            shadowfileprefix,filecounter,fileformat)
+                shadowfileprefix,filecounter,fileformat)
         drops.shadows[shadow_id] = { name = shadowname }
         current_shadow_name = shadowname
 
@@ -1306,18 +1310,19 @@ function drops.shadow(specification)
     -- thanks to Fred Weinhaus
     -- RGB in combination with JPG is always sRGB (JPG does not support linear RGB)
     setcolorspace = ( im_version < 6070607 or im_version > 6070707 ) and " -set colorspace rgb" or ""
-    cspace        = ( im_version < 6070606 or im_version > 6070707 ) and "rgb" or "srgb"
+    cspace = ( im_version < 6070606 or im_version > 6070707 ) and "rgb" or "srgb"
     if colorspace == "rgb" then colorspace = cspace end
 
     -- some abbreviations
     local lp,rp,cl,dq = left_parenthesis,right_parenthesis,continue_line,double_quote
 
-    local quoted_shadowcolor = dq .. shadowcolor .. dq
-    local quoted_shadowbackgroundcolor = dq .. shadowbackgroundcolor .. dq
+    local quoted_shadowcolor = dq .. shadowcolor_txt .. dq
+    local quoted_shadowbackgroundcolor = dq .. shadowbackgroundcolor_txt .. dq
+    local quoted_shadowcolor_blank = dq .. color2text(shadowcolor, 0) .. dq -- needed for full transparent frame around graphic
 
     -- subdir for the graphics
     local relative_shadowpath, relative_shadowname
-    relative_shadowpath = "."                 .. dir_separator .. shadowdir .. dir_separator .. shadowsubdir
+    relative_shadowpath = "." .. dir_separator .. shadowdir .. dir_separator .. shadowsubdir
     relative_shadowname = relative_shadowpath .. dir_separator .. shadowname
 
     -- set the density for the saved graphic by using both 'units' and 'density'
@@ -1358,7 +1363,7 @@ function drops.shadow(specification)
     -- '-depth 8' is needed for the correct interpretation of the shadow color values
     -- must stand before 'xc:none'; using the '--verbose' parameter showed 16-bit for the first shadow mask otherwise
     local mask_setup = [[-size %dx%d -depth 8 xc:none -fill black -stroke none -draw ]]
---    local mask_setup = [[-size %dx%d -depth 8 xc:none -fill none -stroke white -draw ]] -- debug
+    --    local mask_setup = [[-size %dx%d -depth 8 xc:none -fill none -stroke white -draw ]] -- debug
     local mask_fallback = [["roundrectangle 1,1 %d,%d %d,%d"]]
 
     local mask_template
@@ -1367,7 +1372,7 @@ function drops.shadow(specification)
 
 
     batch[#batch+1] = format("\n%s [%d]  %s",
-                                 comment_sign,filecounter,mppath)
+         comment_sign,filecounter,mppath)
 
     -- calculate the paths for umbra and penumbra masks
     local umask_path,pmask_path,umbra_mask,penumbra_mask
@@ -1393,36 +1398,33 @@ function drops.shadow(specification)
         -- store the shift values of the bigger penumbra shadow
         drops.shadows[shadow_id].shiftx = shiftx ; drops.shadows[shadow_id].shifty = shifty
         drops.parameters.current.shiftx = shiftx ; drops.parameters.current.shifty = shifty
-        penumbra_mask = format(mask_template,
-                                      width,height)
+        penumbra_mask = format(mask_template, width, height)
     else -- fallback in case of a path problem
         mask_template = mask_setup .. mask_fallback
         penumbra_mask = format(mask_template,
-                                      width+2*pdistance+border,height+2*pdistance+border, -- total size
-                                      width+2*pdistance,height+2*pdistance, radius,radius) -- drawn mask size
+            width+2*pdistance+border,height+2*pdistance+border, -- total size
+            width+2*pdistance,height+2*pdistance, radius,radius) -- drawn mask size
     end
 
     -- 2.
-    local penumbra_shadow = format(shadow_template,
-                                   quoted_shadowcolor,penumbra,psigma)
+    local penumbra_shadow = format(shadow_template, quoted_shadowcolor, penumbra, psigma)
     -- 3.
     if umask_path then
         if #umask_path > IM_MAX_PATH_LIMIT then
             local mask_path_filename = format("path-%s-%s-%sppi-ud%i.mvg",
-                                              tex.jobname,mppath,resolution,udistance)
+                tex.jobname,mppath,resolution,udistance)
             save_IM_path(umask_path,mask_path_filename)
             mask_template = mask_setup .. "@" .. shadowdir .. dir_separator ..  mask_path_filename
         else
             mask_template = mask_setup .. "\"fill-rule nonzero path \'" .. umask_path .. "\' \""
         end
-        umbra_mask = format(mask_template,
-                                   width,height)
+        umbra_mask = format(mask_template, width, height)
 
     else -- fallback in case of a path problem
         mask_template = mask_setup .. mask_fallback
         umbra_mask = format(mask_template,
-                                   width+2*udistance+border,height+2*udistance+border, -- total size
-                                   width+2*udistance,height+2*udistance, radius,radius) -- drawn mask size
+            width+2*udistance+border,height+2*udistance+border, -- total size
+            width+2*udistance,height+2*udistance, radius,radius) -- drawn mask size
     end
 
     -- .4
@@ -1436,10 +1438,14 @@ function drops.shadow(specification)
     -- 6
     local blur_radius,blur_sigma = 0, 2
     local frame_size = blur_sigma+1
-    local optimize_shadow =
---        format("+clone -bordercolor none -border %d -background %s -alpha Background -channel Alpha -blur %dx%.1f", -- IM 6.9.2-0: problem with '-border'
-        format("+clone -bordercolor none -compose Src -frame %dx%d -background %s -alpha Background -channel Alpha -blur %dx%.1f",
-               frame_size,frame_size,quoted_shadowcolor,blur_radius,blur_sigma)
+    local optimize_shadow
+    if ( im_version > 700000 ) then
+        optimize_shadow = format("+clone -bordercolor %s -compose Src -border %d -channel Alpha -blur %dx%.1f",
+               quoted_shadowcolor_blank, frame_size,blur_radius,blur_sigma) -- IM 7.0.1-3: border works again
+    else
+        optimize_shadow = format("+clone -bordercolor none -compose Src -frame %dx%d -background %s -alpha Background -channel Alpha -blur %dx%.1f",
+            frame_size,frame_size,quoted_shadowcolor,blur_radius,blur_sigma) -- IM 6.9.2-0: problem with '-border'
+    end
 
     -- IM SHADOW WITH UMBRA + PENUMBRA AREA
     --  1. create penumbra mask as base for shadow
@@ -1448,19 +1454,19 @@ function drops.shadow(specification)
     --  4. create umbra shadow
     --  5. combine transparent channels of both shadows
     --  6. adds full transparent border (simply avoids PDF render problems at graphic borders),
-    --     corrects the border color (black->shadowcolor) afterwards to save some bytes
+    --     corrects the border color (black->shadowcolor) afterwards to save some bytes (IM6 only)
     --     and also blurs possibly visible transitions between the sub-shadow areas
     --  7. save shadow
 
     batch[#batch+1] = IM_command .. cl ..
-        lp .. penumbra_mask                .. rp .. cl .. -- (1.)
+        lp .. penumbra_mask .. rp .. cl .. -- (1.)
         lp .. "+clone " .. penumbra_shadow .. rp .. cl .. -- (2.)
-        lp .. umbra_mask                   .. rp .. cl .. -- (3.)
-        lp .. "+clone " .. umbra_shadow    .. rp .. "-delete 0,2 " .. cl .. -- (4.)
-        combine_shadows                    .. cl .. -- (5.)
-        lp .. optimize_shadow              .. rp .. "-delete 0 "   .. cl .. -- (6.)
+        lp .. umbra_mask .. rp .. cl .. -- (3.)
+        lp .. "+clone " .. umbra_shadow .. rp .. "-delete 0,2 " .. cl .. -- (4.)
+        combine_shadows .. cl .. -- (5.)
+        lp .. optimize_shadow .. rp .. "-delete 0 "   .. cl .. -- (6.)
         gfx_options .. dq .. relative_shadowname .. dq -- (7.)
 
 
-
 end
+

@@ -36,12 +36,12 @@
         <cd:parameter name="backgroundcolor">
           <cd:constant type="cd:name" default=""/>
         </cd:parameter>
-        <cd:parameter name="colorspace">
+<!--         <cd:parameter name="colorspace">
           <cd:constant type="(empty)" default="yes"/>
           <cd:constant type="cmyk"/>
           <cd:constant type="gray"/>
           <cd:constant type="rgb"/>
-        </cd:parameter>
+        </cd:parameter> -->
         <cd:parameter name="direction">
           <cd:constant type="cd:number" default="-45"/>
         </cd:parameter>

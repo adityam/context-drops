@@ -1,6 +1,6 @@
 %D \module
 %D   [     file=t-drops,
-%D      version=2016.01.18,
+%D      version=2017.08.24,
 %D        title=\CONTEXT\ User Module,
 %D     subtitle=drops,
 %D       author=Peter Rolf,
@@ -9,7 +9,7 @@
 %D        email=peter.rolf@arcor.de,
 %D      license=GNU General Public License]
 
-%C Copyright (C) 2012-2016  Peter Rolf
+%C Copyright (C) 2012-2017  Peter Rolf
 %C
 %C This program is free software: you can redistribute it and/or modify
 %C it under the terms of the GNU General Public License as published by
@@ -36,7 +36,6 @@
 \startinterface all
   \setinterfaceconstant {background}              {background}
   \setinterfaceconstant {backgroundcolor}         {backgroundcolor}
-  \setinterfaceconstant {colorspace}              {colorspace}
   \setinterfaceconstant {direction}               {direction}
   \setinterfaceconstant {file}                    {file}
   \setinterfaceconstant {fileformat}              {fileformat}
@@ -145,7 +144,7 @@
 
 %D Comma value lists
 
-\def\@@@@drops!commands{\c!background,\c!backgroundcolor,\c!colorspace,\c!direction,\c!file,\c!fileformat,\c!mppath,\c!offset,\c!pdistance,\c!penumbra,\c!psigma,\c!radius,\c!resolution,\c!rotation,\c!setup,\c!shadowbackgroundcolor,\c!shadowcolor,\c!udistance,\c!umbra,\c!usigma} % not \c!setup
+\def\@@@@drops!commands{\c!background,\c!backgroundcolor,\c!direction,\c!file,\c!fileformat,\c!mppath,\c!offset,\c!pdistance,\c!penumbra,\c!psigma,\c!radius,\c!resolution,\c!rotation,\c!setup,\c!shadowbackgroundcolor,\c!shadowcolor,\c!udistance,\c!umbra,\c!usigma} % not \c!setup
 
 %D \macros
 %D   {}
@@ -277,7 +276,6 @@
        penumbra = \!!bs\dropsparameter\c!penumbra\!!es,
        resolution = \!!bs\dropsparameter\c!resolution\!!es,
        fileformat = \!!bs\dropsparameter\c!fileformat\!!es,
-       colorspace = \!!bs\dropsparameter\c!colorspace\!!es,
        shadowcolor = \!!bs\dropsparameter\c!shadowcolor\!!es,
        shadowbackgroundcolor = \!!bs\dropsparameter\c!shadowbackgroundcolor\!!es,
        mppath= \!!bs\dropsparameter\c!mppath\!!es,
